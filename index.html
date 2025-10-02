@@ -944,10 +944,6 @@
             background-position: center;
         }
 
-        .user-recent-ratings {
-            margin-top: 20px;
-        }
-
         /* Help Styles */
         .help-section {
             margin-bottom: 30px;
@@ -1062,6 +1058,173 @@
             margin-left: 15px;
         }
 
+        /* NEW STYLES FOR ADDED FEATURES */
+        
+        /* Enhanced Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-card {
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .dashboard-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .dashboard-card h3 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        /* Emergency Button */
+        .emergency-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            z-index: 1000;
+            transition: all 0.3s;
+            animation: pulse-emergency 2s infinite;
+        }
+
+        .emergency-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+        }
+
+        @keyframes pulse-emergency {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+
+        /* Room Allocation */
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .room-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary);
+        }
+
+        .room-occupied {
+            border-left-color: var(--danger);
+        }
+
+        .room-available {
+            border-left-color: var(--secondary);
+        }
+
+        /* Attendance Calendar */
+        .attendance-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .calendar-day {
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+
+        .calendar-day.present {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .calendar-day.absent {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        /* Payment Status */
+        .payment-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .payment-paid {
+            background-color: #d4edda;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .payment-pending {
+            background-color: #fff3cd;
+            border-left: 4px solid var(--warning);
+        }
+
+        .payment-overdue {
+            background-color: #f8d7da;
+            border-left: 4px solid var(--danger);
+        }
+
+        /* Loading States */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            z-index: 10;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* Responsive Styles */
         @media (max-width: 768px) {
             .main-content {
@@ -1103,6 +1266,17 @@
             .hostel-type {
                 flex-direction: column;
             }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .emergency-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1125,6 +1299,10 @@
             
             .login-box {
                 padding: 20px;
+            }
+
+            .room-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -1167,7 +1345,6 @@
                     <label for="hostelName">Select Hostel</label>
                     <select class="form-control" id="hostelName" required>
                         <option value="">Select Hostel</option>
-                        <!-- Options will be populated based on selection -->
                     </select>
                 </div>
                 
@@ -1255,6 +1432,11 @@
                     <li><a href="#" data-nav="leave"><i class="fas fa-calendar-alt"></i> Leave Application</a></li>
                     <li><a href="#" data-nav="students"><i class="fas fa-users"></i> Student Management</a></li>
                     <li><a href="#" data-nav="reports"><i class="fas fa-clipboard-list"></i> Hostel Reports</a></li>
+                    <!-- NEW NAVIGATION ITEMS -->
+                    <li><a href="#" data-nav="rooms"><i class="fas fa-bed"></i> Room Management</a></li>
+                    <li><a href="#" data-nav="attendance"><i class="fas fa-user-check"></i> Attendance</a></li>
+                    <li><a href="#" data-nav="visitors"><i class="fas fa-user-friends"></i> Visitors</a></li>
+                    <li><a href="#" data-nav="payments"><i class="fas fa-rupee-sign"></i> Payments</a></li>
                     <li><a href="#" data-nav="settings"><i class="fas fa-cog"></i> Settings</a></li>
                     <li><a href="#" data-nav="help"><i class="fas fa-question-circle"></i> Help</a></li>
                 </ul>
@@ -1279,6 +1461,15 @@
                                 <span>Hostel Reports</span>
                                 <span class="stat-value" id="totalReports">0</span>
                             </div>
+                            <!-- NEW STATS -->
+                            <div class="stat-item">
+                                <span>Room Occupancy</span>
+                                <span class="stat-value" id="roomOccupancy">0%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>Today's Attendance</span>
+                                <span class="stat-value" id="todayAttendance">0%</span>
+                            </div>
                         </div>
                     </div>
                     
@@ -1290,8 +1481,15 @@
                         <button class="btn btn-success" id="applyLeaveBtn" style="width: 100%; margin-bottom: 10px;">
                             <i class="fas fa-calendar-plus"></i> Apply Leave
                         </button>
-                        <button class="btn btn-warning" id="reportIssueBtn" style="width: 100%;">
+                        <button class="btn btn-warning" id="reportIssueBtn" style="width: 100%; margin-bottom: 10px;">
                             <i class="fas fa-exclamation-circle"></i> Report Issue
+                        </button>
+                        <!-- NEW QUICK ACTIONS -->
+                        <button class="btn btn-info" id="markAttendanceBtn" style="width: 100%; margin-bottom: 10px;">
+                            <i class="fas fa-user-check"></i> Mark Attendance
+                        </button>
+                        <button class="btn btn-secondary" id="registerVisitorBtn" style="width: 100%;">
+                            <i class="fas fa-user-plus"></i> Register Visitor
                         </button>
                     </div>
                     
@@ -1309,15 +1507,44 @@
                             <span>Room No.</span>
                             <span class="stat-value" id="userRoom">-</span>
                         </div>
+                        <!-- NEW HOSTEL INFO -->
+                        <div class="stat-item">
+                            <span>Fee Status</span>
+                            <span class="stat-value" id="feeStatus">-</span>
+                        </div>
                     </div>
                 </aside>
                 
                 <main class="content-area">
-                    <!-- Dashboard Content -->
+                    <!-- Enhanced Dashboard Content -->
                     <div class="tab-content active" id="dashboardContent">
                         <div class="section-title">
                             <h2>Dashboard</h2>
-                            <span id="currentDate">Wednesday, October 25, 2023</span>
+                            <span id="currentDate">Loading...</span>
+                        </div>
+                        
+                        <!-- Enhanced Dashboard Grid -->
+                        <div class="dashboard-grid">
+                            <div class="dashboard-card">
+                                <i class="fas fa-users"></i>
+                                <h3 id="totalStudents">0</h3>
+                                <p>Total Students</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-utensils"></i>
+                                <h3 id="messRating">0/5</h3>
+                                <p>Mess Rating</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-bed"></i>
+                                <h3 id="roomOccupancyDashboard">0%</h3>
+                                <p>Room Occupancy</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-user-check"></i>
+                                <h3 id="attendanceRate">0%</h3>
+                                <p>Attendance Rate</p>
+                            </div>
                         </div>
                         
                         <div class="tabs">
@@ -1327,32 +1554,19 @@
                         </div>
                         
                         <div class="tab-content active" id="overview">
-                            <div class="stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
-                                <div class="stat-item" style="flex-direction: column; text-align: center;">
-                                    <i class="fas fa-utensils fa-2x" style="color: var(--primary); margin-bottom: 10px;"></i>
-                                    <h3 id="messRating">0/5</h3>
-                                    <p>Average Mess Rating</p>
+                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px;">
+                                <div>
+                                    <h3>Recent Activity</h3>
+                                    <div class="feedback-list" id="recentActivity">
+                                        <!-- Recent activity will be populated here -->
+                                    </div>
                                 </div>
-                                <div class="stat-item" style="flex-direction: column; text-align: center;">
-                                    <i class="fas fa-calendar-check fa-2x" style="color: var(--secondary); margin-bottom: 10px;"></i>
-                                    <h3 id="approvedLeaves">0</h3>
-                                    <p>Approved Leaves</p>
+                                <div>
+                                    <h3>Upcoming Events</h3>
+                                    <div class="feedback-list" id="upcomingEvents">
+                                        <!-- Upcoming events will be populated here -->
+                                    </div>
                                 </div>
-                                <div class="stat-item" style="flex-direction: column; text-align: center;">
-                                    <i class="fas fa-exclamation-triangle fa-2x" style="color: var(--warning); margin-bottom: 10px;"></i>
-                                    <h3 id="pendingReports">0</h3>
-                                    <p>Pending Reports</p>
-                                </div>
-                                <div class="stat-item" style="flex-direction: column; text-align: center;">
-                                    <i class="fas fa-users fa-2x" style="color: var(--accent); margin-bottom: 10px;"></i>
-                                    <h3 id="totalStudents">0</h3>
-                                    <p>Total Students</p>
-                                </div>
-                            </div>
-                            
-                            <h3>Recent Activity</h3>
-                            <div class="feedback-list" id="recentActivity">
-                                <!-- Recent activity will be populated here -->
                             </div>
                         </div>
                         
@@ -1381,10 +1595,10 @@
                                     <h3>Hostel Reports</h3>
                                     <p>Report issues and problems</p>
                                 </div>
-                                <div class="card" style="padding: 20px; text-align: center; cursor: pointer;" data-nav="students">
-                                    <i class="fas fa-users fa-3x" style="color: var(--accent); margin-bottom: 15px;"></i>
-                                    <h3>Student Management</h3>
-                                    <p>Manage student information</p>
+                                <div class="card" style="padding: 20px; text-align: center; cursor: pointer;" data-nav="attendance">
+                                    <i class="fas fa-user-check fa-3x" style="color: var(--accent); margin-bottom: 15px;"></i>
+                                    <h3>Attendance</h3>
+                                    <p>Mark and view attendance</p>
                                 </div>
                             </div>
                         </div>
@@ -1400,7 +1614,6 @@
                         <div class="tabs">
                             <div class="tab active" data-tab="feedback">Submit Feedback</div>
                             <div class="tab" data-tab="recent">Recent Feedback</div>
-                            <div class="tab" data-tab="ratings">Food Ratings</div>
                         </div>
                         
                         <div class="tab-content active" id="feedback">
@@ -1435,22 +1648,6 @@
                                     </div>
                                     
                                     <div class="form-group">
-                                        <label>Menu Variety Rating</label>
-                                        <div class="rating">
-                                            <input type="radio" id="menuStar5" name="menuRating" value="5">
-                                            <label for="menuStar5">★</label>
-                                            <input type="radio" id="menuStar4" name="menuRating" value="4">
-                                            <label for="menuStar4">★</label>
-                                            <input type="radio" id="menuStar3" name="menuRating" value="3">
-                                            <label for="menuStar3">★</label>
-                                            <input type="radio" id="menuStar2" name="menuRating" value="2">
-                                            <label for="menuStar2">★</label>
-                                            <input type="radio" id="menuStar1" name="menuRating" value="1">
-                                            <label for="menuStar1">★</label>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="form-group">
                                         <label for="comments">Comments/Suggestions</label>
                                         <textarea class="form-control" id="comments" placeholder="Share your thoughts about the food, service, or suggestions for improvement..."></textarea>
                                     </div>
@@ -1466,13 +1663,6 @@
                             <h3>Recent Feedback from Students</h3>
                             <div class="feedback-list" id="feedbackList">
                                 <!-- Feedback items will be dynamically added here -->
-                            </div>
-                        </div>
-                        
-                        <div class="tab-content" id="ratings">
-                            <h3>Food Item Ratings</h3>
-                            <div id="foodRatingsList">
-                                <!-- Food rating items will be dynamically added here -->
                             </div>
                         </div>
                     </div>
@@ -1676,7 +1866,246 @@
                             </div>
                         </div>
                     </div>
-                    
+
+                    <!-- NEW FEATURE: Room Management -->
+                    <div class="tab-content" id="roomsContent">
+                        <div class="section-title">
+                            <h2>Room Management</h2>
+                            <span>Manage hostel room allocation and availability</span>
+                        </div>
+                        
+                        <div class="tabs">
+                            <div class="tab active" data-tab="room-allocation">Room Allocation</div>
+                            <div class="tab" data-tab="room-availability">Room Availability</div>
+                        </div>
+                        
+                        <div class="tab-content active" id="room-allocation">
+                            <div class="student-form">
+                                <h3>Allocate Room to Student</h3>
+                                <form id="roomAllocationForm">
+                                    <div class="form-group">
+                                        <label for="allocateStudent">Select Student</label>
+                                        <select class="form-control" id="allocateStudent" required>
+                                            <option value="">Select Student</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="allocateRoom">Select Room</label>
+                                        <select class="form-control" id="allocateRoom" required>
+                                            <option value="">Select Room</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="allocationDate">Allocation Date</label>
+                                        <input type="date" class="form-control" id="allocationDate" required>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-bed"></i> Allocate Room
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <h3>Current Room Allocations</h3>
+                            <div class="student-list" id="roomAllocationsList">
+                                <!-- Room allocations will be populated here -->
+                            </div>
+                        </div>
+                        
+                        <div class="tab-content" id="room-availability">
+                            <h3>Room Availability Status</h3>
+                            <div class="room-grid" id="roomAvailabilityGrid">
+                                <!-- Room availability grid will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NEW FEATURE: Attendance System -->
+                    <div class="tab-content" id="attendanceContent">
+                        <div class="section-title">
+                            <h2>Attendance System</h2>
+                            <span>Track student attendance and presence</span>
+                        </div>
+                        
+                        <div class="tabs">
+                            <div class="tab active" data-tab="mark-attendance">Mark Attendance</div>
+                            <div class="tab" data-tab="attendance-records">Attendance Records</div>
+                        </div>
+                        
+                        <div class="tab-content active" id="mark-attendance">
+                            <div class="student-form">
+                                <h3>Mark Today's Attendance</h3>
+                                <div class="form-group">
+                                    <label>Select Date</label>
+                                    <input type="date" class="form-control" id="attendanceDate" value="">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Attendance Type</label>
+                                    <select class="form-control" id="attendanceType">
+                                        <option value="morning">Morning Roll Call</option>
+                                        <option value="evening">Evening Roll Call</option>
+                                        <option value="night">Night Check</option>
+                                    </select>
+                                </div>
+                                
+                                <h4>Student List</h4>
+                                <div class="student-list" id="attendanceStudentList">
+                                    <!-- Attendance student list will be populated here -->
+                                </div>
+                                
+                                <button class="btn btn-success" id="saveAttendanceBtn" style="margin-top: 20px;">
+                                    <i class="fas fa-save"></i> Save Attendance
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-content" id="attendance-records">
+                            <h3>Attendance Records</h3>
+                            <div class="form-group">
+                                <input type="month" class="form-control" id="attendanceMonth" style="max-width: 200px;">
+                            </div>
+                            <div class="attendance-calendar" id="attendanceCalendar">
+                                <!-- Attendance calendar will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NEW FEATURE: Visitor Management -->
+                    <div class="tab-content" id="visitorsContent">
+                        <div class="section-title">
+                            <h2>Visitor Management</h2>
+                            <span>Manage visitor registrations and tracking</span>
+                        </div>
+                        
+                        <div class="tabs">
+                            <div class="tab active" data-tab="register-visitor">Register Visitor</div>
+                            <div class="tab" data-tab="visitor-records">Visitor Records</div>
+                        </div>
+                        
+                        <div class="tab-content active" id="register-visitor">
+                            <div class="student-form">
+                                <h3>Register New Visitor</h3>
+                                <form id="visitorForm">
+                                    <div class="form-group">
+                                        <label for="visitorName">Visitor Name</label>
+                                        <input type="text" class="form-control" id="visitorName" placeholder="Enter visitor's full name" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="visitorPhone">Phone Number</label>
+                                        <input type="tel" class="form-control" id="visitorPhone" placeholder="Enter phone number" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="visitorPurpose">Purpose of Visit</label>
+                                        <select class="form-control" id="visitorPurpose" required>
+                                            <option value="">Select Purpose</option>
+                                            <option value="meeting">Meeting Student</option>
+                                            <option value="delivery">Delivery</option>
+                                            <option value="official">Official Work</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="studentVisiting">Student Being Visited</label>
+                                        <select class="form-control" id="studentVisiting" required>
+                                            <option value="">Select Student</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="expectedDuration">Expected Duration (hours)</label>
+                                        <input type="number" class="form-control" id="expectedDuration" min="1" max="8" value="2" required>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-user-plus"></i> Register Visitor
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-content" id="visitor-records">
+                            <h3>Visitor Records</h3>
+                            <div class="student-list" id="visitorRecordsList">
+                                <!-- Visitor records will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NEW FEATURE: Payment Management -->
+                    <div class="tab-content" id="paymentsContent">
+                        <div class="section-title">
+                            <h2>Payment Management</h2>
+                            <span>Manage hostel fee payments and tracking</span>
+                        </div>
+                        
+                        <div class="tabs">
+                            <div class="tab active" data-tab="fee-payment">Fee Payment</div>
+                            <div class="tab" data-tab="payment-records">Payment Records</div>
+                        </div>
+                        
+                        <div class="tab-content active" id="fee-payment">
+                            <div class="student-form">
+                                <h3>Make Fee Payment</h3>
+                                <form id="paymentForm">
+                                    <div class="form-group">
+                                        <label for="paymentStudent">Select Student</label>
+                                        <select class="form-control" id="paymentStudent" required>
+                                            <option value="">Select Student</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="paymentAmount">Amount (₹)</label>
+                                        <input type="number" class="form-control" id="paymentAmount" placeholder="Enter amount" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="paymentType">Payment Type</label>
+                                        <select class="form-control" id="paymentType" required>
+                                            <option value="">Select Type</option>
+                                            <option value="hostel_fee">Hostel Fee</option>
+                                            <option value="mess_fee">Mess Fee</option>
+                                            <option value="security_deposit">Security Deposit</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="paymentMethod">Payment Method</label>
+                                        <select class="form-control" id="paymentMethod" required>
+                                            <option value="">Select Method</option>
+                                            <option value="cash">Cash</option>
+                                            <option value="online">Online Transfer</option>
+                                            <option value="cheque">Cheque</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="paymentDate">Payment Date</label>
+                                        <input type="date" class="form-control" id="paymentDate" required>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-rupee-sign"></i> Record Payment
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-content" id="payment-records">
+                            <h3>Payment Records</h3>
+                            <div class="student-list" id="paymentRecordsList">
+                                <!-- Payment records will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Settings Content -->
                     <div class="tab-content" id="settingsContent">
                         <div class="section-title">
@@ -1743,7 +2172,7 @@
                                     <i class="fas fa-chevron-down"></i>
                                 </div>
                                 <div class="faq-answer">
-                                    <p>To submit feedback, go to the Mess Feedback tab and click on "Submit Feedback". Select the meal type, rate the food quality and menu variety, add any comments, and click submit.</p>
+                                    <p>To submit feedback, go to the Mess Feedback tab and click on "Submit Feedback". Select the meal type, rate the food quality, add any comments, and click submit.</p>
                                 </div>
                             </div>
                             
@@ -1767,23 +2196,24 @@
                                 </div>
                             </div>
                             
+                            <!-- New FAQ items -->
                             <div class="faq-item">
                                 <div class="faq-question">
-                                    <span>Who can see my feedback and reports?</span>
+                                    <span>How do I mark attendance?</span>
                                     <i class="fas fa-chevron-down"></i>
                                 </div>
                                 <div class="faq-answer">
-                                    <p>Your feedback is anonymous to other students. Only the mess management team can see which feedback belongs to which student. Reports are visible to hostel administration for resolution.</p>
+                                    <p>Go to the Attendance tab, select the date and attendance type, mark students as present or absent, then click "Save Attendance".</p>
                                 </div>
                             </div>
                             
                             <div class="faq-item">
                                 <div class="faq-question">
-                                    <span>How do I change my profile picture?</span>
+                                    <span>How can I register a visitor?</span>
                                     <i class="fas fa-chevron-down"></i>
                                 </div>
                                 <div class="faq-answer">
-                                    <p>Go to the Settings page, and in the Profile Settings section, you can upload a new profile picture using the "Choose File" button and then click "Upload Picture".</p>
+                                    <p>Navigate to the Visitors tab, fill in the visitor details including name, purpose, and student being visited, then submit the form.</p>
                                 </div>
                             </div>
                         </div>
@@ -1794,6 +2224,7 @@
                             <ul>
                                 <li><strong>Email:</strong> hostel-admin@drngpit.ac.in</li>
                                 <li><strong>Phone:</strong> +91 9876543210</li>
+                                <li><strong>Emergency:</strong> +91 9876543211</li>
                                 <li><strong>Office:</strong> Room 101, Main Hostel Building</li>
                             </ul>
                         </div>
@@ -1817,1672 +2248,14 @@
             </div>
         </footer>
 
+        <!-- Emergency Button -->
+        <button class="emergency-btn" id="emergencyBtn" title="Emergency Help">
+            <i class="fas fa-bell"></i>
+        </button>
+
         <div class="notification" id="notification"></div>
     </div>
 
-    <script>
-        // MongoDB Configuration
-        const MONGODB_CONFIG = {
-            API_URL: 'http://localhost:3000/api'
-        };
-
-        // Hostel and warden data
-        const hostelData = {
-            boys: [
-                { name: "Marutham Hostel", warden: "Saravanan" },
-                { name: "Kurinji Hostel", warden: "Ramesh Kumar" },
-                { name: "Neithal Hostel", warden: "Vijay Anand" }
-            ],
-            girls: [
-                { name: "Mullai Hostel", warden: "Lakshmi Priya" },
-                { name: "Palai Hostel", warden: "Geetha Rani" },
-                { name: "Kaanum Hostel", warden: "Shanti Devi" }
-            ]
-        };
-
-        // User authentication and data storage
-        let currentUser = null;
-        let users = [];
-        let feedbackData = [];
-        let leaveData = [];
-        let studentData = [];
-        let reportData = [];
-        let announcements = [
-            {
-                id: 1,
-                title: "Power Cut Notice",
-                content: "There will be no power supply this Saturday from 10 AM to 4 PM for maintenance work.",
-                date: "2023-10-28",
-                type: "info"
-            },
-            {
-                id: 2,
-                title: "Water Supply Interruption",
-                content: "Water supply will be interrupted on Friday from 10 AM to 12 PM for pipeline repairs.",
-                date: "2023-10-27",
-                type: "warning"
-            },
-            {
-                id: 3,
-                title: "Hostel Fee Payment",
-                content: "Last date for hostel fee payment is 30th October. Late payment will incur a fine.",
-                date: "2023-10-25",
-                type: "important"
-            }
-        ];
-
-        // Simple API service with localStorage fallback
-        class MongoDBService {
-            static async makeAPIRequest(endpoint, method = 'GET', data = null) {
-                try {
-                    const options = {
-                        method: method,
-                        headers: {
-                            'Content-Type': 'application/json',
-                        }
-                    };
-                    
-                    if (data && method !== 'GET') {
-                        options.body = JSON.stringify(data);
-                    }
-                    
-                    const response = await fetch(`${MONGODB_CONFIG.API_URL}/${endpoint}`, options);
-                    
-                    if (!response.ok) {
-                        throw new Error(`API error: ${response.status}`);
-                    }
-                    
-                    return await response.json();
-                } catch (error) {
-                    console.warn('API call failed, using localStorage:', error);
-                    return this.localStorageFallback(endpoint, method, data);
-                }
-            }
-            
-            static localStorageFallback(endpoint, method, data) {
-                const key = `db_${endpoint}`;
-                
-                switch (method) {
-                    case 'GET':
-                        const stored = localStorage.getItem(key);
-                        return { success: true, data: stored ? JSON.parse(stored) : [] };
-                        
-                    case 'POST':
-                        const items = JSON.parse(localStorage.getItem(key) || '[]');
-                        const newItem = { ...data, id: Date.now() };
-                        items.push(newItem);
-                        localStorage.setItem(key, JSON.stringify(items));
-                        return { success: true, data: newItem };
-                        
-                    case 'PUT':
-                        const allItems = JSON.parse(localStorage.getItem(key) || '[]');
-                        const updatedItems = allItems.map(item => 
-                            item.id === data.id ? { ...item, ...data } : item
-                        );
-                        localStorage.setItem(key, JSON.stringify(updatedItems));
-                        return { success: true, data: { modifiedCount: 1 } };
-                        
-                    case 'DELETE':
-                        const currentItems = JSON.parse(localStorage.getItem(key) || '[]');
-                        const filteredItems = currentItems.filter(item => item.id !== data.id);
-                        localStorage.setItem(key, JSON.stringify(filteredItems));
-                        return { success: true, data: { deletedCount: 1 } };
-                }
-            }
-            
-            // User methods
-            static async getUsers() {
-                const result = await this.makeAPIRequest('users');
-                return result.data || [];
-            }
-            
-            static async createUser(user) {
-                const result = await this.makeAPIRequest('users', 'POST', user);
-                return result.data;
-            }
-            
-            static async updateUser(userId, updates) {
-                const result = await this.makeAPIRequest('users', 'PUT', { id: userId, ...updates });
-                return result.data;
-            }
-            
-            // Feedback methods
-            static async getFeedback() {
-                const result = await this.makeAPIRequest('feedback');
-                return result.data || [];
-            }
-            
-            static async createFeedback(feedback) {
-                const result = await this.makeAPIRequest('feedback', 'POST', feedback);
-                return result.data;
-            }
-            
-            static async updateFeedback(feedbackId, updates) {
-                const result = await this.makeAPIRequest('feedback', 'PUT', { id: feedbackId, ...updates });
-                return result.data;
-            }
-            
-            static async deleteFeedback(feedbackId) {
-                const result = await this.makeAPIRequest('feedback', 'DELETE', { id: feedbackId });
-                return result.data;
-            }
-            
-            // Leave methods
-            static async getLeaves() {
-                const result = await this.makeAPIRequest('leaves');
-                return result.data || [];
-            }
-            
-            static async createLeave(leave) {
-                const result = await this.makeAPIRequest('leaves', 'POST', leave);
-                return result.data;
-            }
-static async updateLeave(leaveId, updates) {
-    try {
-        const response = await fetch(`${MONGODB_CONFIG.API_URL}/leaves/${leaveId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updates)
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        return result.data;
-    } catch (error) {
-        console.warn('API call failed, using localStorage fallback:', error);
-        return this.localStorageFallback('leaves', 'PUT', { id: leaveId, ...updates });
-    }
-}
-            // Student methods
-            static async getStudents() {
-                const result = await this.makeAPIRequest('students');
-                return result.data || [];
-            }
-            
-            static async createStudent(student) {
-                const result = await this.makeAPIRequest('students', 'POST', student);
-                return result.data;
-            }
-            
-            static async updateStudent(studentId, updates) {
-                const result = await this.makeAPIRequest('students', 'PUT', { id: studentId, ...updates });
-                return result.data;
-            }
-            
-            static async deleteStudent(studentId) {
-                const result = await this.makeAPIRequest('students', 'DELETE', { id: studentId });
-                return result.data;
-            }
-            
-            // Report methods
-            static async getReports() {
-                const result = await this.makeAPIRequest('reports');
-                return result.data || [];
-            }
-            
-            static async createReport(report) {
-                const result = await this.makeAPIRequest('reports', 'POST', report);
-                return result.data;
-            }
-            
-            static async updateReport(reportId, updates) {
-                const result = await this.makeAPIRequest('reports', 'PUT', { id: reportId, ...updates });
-                return result.data;
-            }
-        }
-
-        // DOM elements
-        const loadingScreen = document.getElementById('loadingScreen');
-        const loginPage = document.getElementById('loginPage');
-        const appContainer = document.getElementById('appContainer');
-        const loginForm = document.getElementById('loginForm');
-        const adminLoginForm = document.getElementById('adminLoginForm');
-        const adminLoginModal = document.getElementById('adminLoginModal');
-        const showAdminLogin = document.getElementById('showAdminLogin');
-        const closeAdminModal = document.getElementById('closeAdminModal');
-        const hostelTypeOptions = document.querySelectorAll('.hostel-option');
-        const hostelSelection = document.getElementById('hostelSelection');
-        const hostelNameSelect = document.getElementById('hostelName');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const logoutSettingsBtn = document.getElementById('logoutSettingsBtn');
-        const userDisplayName = document.getElementById('userDisplayName');
-        const userAvatar = document.getElementById('userAvatar');
-        const profilePicture = document.getElementById('profilePicture');
-        const wardenInfo = document.getElementById('wardenInfo');
-        const userHostel = document.getElementById('userHostel');
-        const userWarden = document.getElementById('userWarden');
-        const userRoom = document.getElementById('userRoom');
-        const themeToggle = document.getElementById('themeToggle');
-        const themeSelect = document.getElementById('themeSelect');
-        const notification = document.getElementById('notification');
-        const feedbackForm = document.getElementById('feedbackForm');
-        const feedbackList = document.getElementById('feedbackList');
-        const foodRatingsList = document.getElementById('foodRatingsList');
-        const pendingLeavesEl = document.getElementById('pendingLeaves');
-        const totalFeedbackEl = document.getElementById('totalFeedback');
-        const totalReportsEl = document.getElementById('totalReports');
-        const currentDateEl = document.getElementById('currentDate');
-        const submitFeedbackBtn = document.getElementById('submitFeedbackBtn');
-        const applyLeaveBtn = document.getElementById('applyLeaveBtn');
-        const reportIssueBtn = document.getElementById('reportIssueBtn');
-        const displayNameInput = document.getElementById('displayName');
-        const roomNumberInput = document.getElementById('roomNumber');
-        const saveProfileBtn = document.getElementById('saveProfileBtn');
-        const profilePictureInput = document.getElementById('profilePictureInput');
-        const uploadPictureBtn = document.getElementById('uploadPictureBtn');
-        const recentActivity = document.getElementById('recentActivity');
-        const announcementsList = document.getElementById('announcementsList');
-        const messRatingEl = document.getElementById('messRating');
-        const approvedLeavesEl = document.getElementById('approvedLeaves');
-        const pendingReportsEl = document.getElementById('pendingReports');
-        const totalStudentsEl = document.getElementById('totalStudents');
-        const leaveForm = document.getElementById('leaveForm');
-        const myLeavesList = document.getElementById('myLeavesList');
-        const allLeavesList = document.getElementById('allLeavesList');
-        const manageLeavesTab = document.getElementById('manageLeavesTab');
-        const searchStudent = document.getElementById('searchStudent');
-        const studentForm = document.getElementById('studentForm');
-        const studentList = document.getElementById('studentList');
-        const searchStudentList = document.getElementById('searchStudentList');
-        const reportForm = document.getElementById('reportForm');
-        const myReportsList = document.getElementById('myReportsList');
-        const allReportsList = document.getElementById('allReportsList');
-        const allReportsTab = document.getElementById('allReportsTab');
-        const searchReports = document.getElementById('searchReports');
-
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', function() {
-            // Show loading screen for 3 seconds
-            setTimeout(() => {
-                loadingScreen.classList.add('hidden');
-                
-                // Check if user is already logged in
-                const savedUser = localStorage.getItem('currentUser');
-                if (savedUser) {
-                    currentUser = JSON.parse(savedUser);
-                    applyUserTheme();
-                    showApp();
-                } else {
-                    showLogin();
-                }
-            }, 3000);
-            
-            // Set current date
-            currentDateEl.textContent = new Date().toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            });
-            
-            // Set up event listeners
-            setupEventListeners();
-            
-            // Load initial data
-            loadInitialData();
-        });
-
-        // Load initial data
-        async function loadInitialData() {
-            try {
-                users = await MongoDBService.getUsers();
-                feedbackData = await MongoDBService.getFeedback();
-                leaveData = await MongoDBService.getLeaves();
-                studentData = await MongoDBService.getStudents();
-                reportData = await MongoDBService.getReports();
-            } catch (error) {
-                console.error('Error loading data:', error);
-                // Initialize with empty arrays if there's an error
-                users = [];
-                feedbackData = [];
-                leaveData = [];
-                studentData = [];
-                reportData = [];
-            }
-        }
-
-        // Set up all event listeners
-        function setupEventListeners() {
-            // Hostel type selection
-            hostelTypeOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    const type = this.getAttribute('data-type');
-                    selectHostelType(type);
-                });
-            });
-            
-            // Login form
-            loginForm.addEventListener('submit', handleLogin);
-            
-            // Admin login
-            showAdminLogin.addEventListener('click', () => adminLoginModal.style.display = 'flex');
-            closeAdminModal.addEventListener('click', () => adminLoginModal.style.display = 'none');
-            adminLoginForm.addEventListener('submit', handleAdminLogin);
-            
-            // Logout buttons
-            logoutBtn.addEventListener('click', handleLogout);
-            logoutSettingsBtn.addEventListener('click', handleLogout);
-            
-            // Theme toggle
-            themeToggle.addEventListener('click', toggleTheme);
-            themeSelect.addEventListener('change', handleThemeChange);
-            
-            // Navigation
-            document.querySelectorAll('[data-nav]').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const navItem = this.getAttribute('data-nav');
-                    handleNavigation(navItem);
-                });
-            });
-            
-            // Card navigation
-            document.querySelectorAll('.card[data-nav]').forEach(card => {
-                card.addEventListener('click', function() {
-                    const navItem = this.getAttribute('data-nav');
-                    handleNavigation(navItem);
-                });
-            });
-            
-            // Tabs
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
-                    const parentId = this.closest('.tab-content').id.replace('Content', '');
-                    switchTab(tabId, parentId);
-                });
-            });
-            
-            // Feedback form submission
-            feedbackForm.addEventListener('submit', handleFeedbackSubmit);
-            
-            // Quick action buttons
-            submitFeedbackBtn.addEventListener('click', function() {
-                handleNavigation('mess');
-                setTimeout(() => {
-                    switchTab('feedback', 'mess');
-                }, 100);
-            });
-            
-            applyLeaveBtn.addEventListener('click', function() {
-                handleNavigation('leave');
-                setTimeout(() => {
-                    switchTab('apply', 'leave');
-                }, 100);
-            });
-            
-            reportIssueBtn.addEventListener('click', function() {
-                handleNavigation('reports');
-                setTimeout(() => {
-                    switchTab('report', 'reports');
-                }, 100);
-            });
-            
-            // Leave form submission
-            leaveForm.addEventListener('submit', handleLeaveSubmit);
-            
-            // Student form submission
-            studentForm.addEventListener('submit', handleStudentSubmit);
-            
-            // Report form submission
-            reportForm.addEventListener('submit', handleReportSubmit);
-            
-            // Profile settings
-            saveProfileBtn.addEventListener('click', saveProfileSettings);
-            uploadPictureBtn.addEventListener('click', uploadProfilePicture);
-            
-            // FAQ accordion
-            document.querySelectorAll('.faq-question').forEach(question => {
-                question.addEventListener('click', function() {
-                    this.parentElement.classList.toggle('active');
-                });
-            });
-            
-            // Search functionality
-            searchStudent.addEventListener('input', filterLeaves);
-            searchStudentList.addEventListener('input', filterStudents);
-            searchReports.addEventListener('input', filterReports);
-            
-            // Star rating interaction
-            document.querySelectorAll('.rating input').forEach(star => {
-                star.addEventListener('change', function() {
-                    const labels = this.parentElement.querySelectorAll('label');
-                    labels.forEach((label, index) => {
-                        if (index < 5 - this.value) {
-                            label.style.color = '#ddd';
-                        } else {
-                            label.style.color = '#f39c12';
-                        }
-                    });
-                });
-            });
-        }
-
-        // Handle hostel type selection
-        function selectHostelType(type) {
-            // Update UI
-            hostelTypeOptions.forEach(option => {
-                option.classList.remove('selected');
-            });
-            document.querySelector(`.${type}-option`).classList.add('selected');
-            
-            // Show hostel selection
-            hostelSelection.style.display = 'block';
-            
-            // Populate hostel options
-            hostelNameSelect.innerHTML = '<option value="">Select Hostel</option>';
-            hostelData[type].forEach(hostel => {
-                const option = document.createElement('option');
-                option.value = hostel.name;
-                option.textContent = hostel.name;
-                hostelNameSelect.appendChild(option);
-            });
-        }
-
-        // Handle login
-        async function handleLogin(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const hostelType = document.querySelector('.hostel-option.selected')?.getAttribute('data-type');
-            const hostelName = document.getElementById('hostelName').value;
-            
-            // Validation
-            if (!hostelType || !hostelName) {
-                showNotification('Please select hostel type and name', 'error');
-                return;
-            }
-            
-            // Email validation
-            if (!email.endsWith('@drngpit.ac.in')) {
-                showNotification('Please use your college email ID (@drngpit.ac.in)', 'error');
-                return;
-            }
-            
-            // Password validation (first 7 characters of email in lowercase)
-            const expectedPassword = email.substring(0, 7).toLowerCase();
-            if (password !== expectedPassword) {
-                showNotification('Invalid password. Password should be first 7 characters of your email ID in lowercase', 'error');
-                return;
-            }
-            
-            // Find or create user
-            let user = users.find(u => u.email === email);
-            if (!user) {
-                // Extract room number from email (assuming format 23cb001@drngpit.ac.in)
-                const room = email.split('@')[0].substring(2); // Remove year part
-                
-                user = {
-                    email: email,
-                    password: expectedPassword,
-                    name: email.split('@')[0].toUpperCase(),
-                    room: room,
-                    hostelType: hostelType,
-                    hostelName: hostelName,
-                    avatar: "",
-                    theme: "light"
-                };
-                
-                // Save to MongoDB
-                const newUser = await MongoDBService.createUser(user);
-                if (newUser) {
-                    users.push(newUser);
-                    user = newUser;
-                } else {
-                    // Fallback: add to local array
-                    user.id = Date.now();
-                    users.push(user);
-                }
-            }
-            
-            // Update user hostel info if changed
-            if (user.hostelType !== hostelType || user.hostelName !== hostelName) {
-                user.hostelType = hostelType;
-                user.hostelName = hostelName;
-                
-                // Update in MongoDB
-                await MongoDBService.updateUser(user.id, { 
-                    hostelType: hostelType, 
-                    hostelName: hostelName 
-                });
-            }
-            
-            currentUser = user;
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            applyUserTheme();
-            showApp();
-            showNotification(`Welcome back, ${user.name}!`, 'success');
-        }
-
-        // Handle admin login
-        function handleAdminLogin(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('adminUsername').value;
-            const password = document.getElementById('adminPassword').value;
-            
-            if (username === 'admin' && password === 'Admin@123') {
-                const user = {
-                    email: 'admin@drngpit.ac.in',
-                    name: 'Hostel Administrator',
-                    room: 'Office',
-                    hostelType: 'admin',
-                    hostelName: 'Administration',
-                    avatar: "",
-                    theme: "light",
-                    isAdmin: true
-                };
-                
-                currentUser = user;
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                applyUserTheme();
-                showApp();
-                adminLoginModal.style.display = 'none';
-                showNotification('Welcome, Administrator!', 'success');
-            } else {
-                showNotification('Invalid admin credentials', 'error');
-            }
-        }
-
-        // Handle logout
-        function handleLogout() {
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-            showLogin();
-            showNotification('You have been logged out', 'success');
-        }
-
-        // Apply user's theme preference
-        function applyUserTheme() {
-            if (currentUser && currentUser.theme === 'dark') {
-                document.body.classList.add('dark-mode');
-                themeSelect.value = 'dark';
-                const icon = themeToggle.querySelector('i');
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-            } else {
-                document.body.classList.remove('dark-mode');
-                themeSelect.value = 'light';
-                const icon = themeToggle.querySelector('i');
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
-            }
-        }
-
-        // Show login page
-        function showLogin() {
-            loginPage.style.display = 'flex';
-            appContainer.style.display = 'none';
-            loginForm.reset();
-            hostelSelection.style.display = 'none';
-            hostelTypeOptions.forEach(option => {
-                option.classList.remove('selected');
-            });
-        }
-
-        // Show main application
-        function showApp() {
-            loginPage.style.display = 'none';
-            appContainer.style.display = 'block';
-            
-            // Update user info
-            userDisplayName.textContent = currentUser.name;
-            userAvatar.textContent = currentUser.name.charAt(0).toUpperCase();
-            profilePicture.textContent = currentUser.name.charAt(0).toUpperCase();
-            
-            // Set profile form values
-            displayNameInput.value = currentUser.name;
-            roomNumberInput.value = currentUser.room;
-            
-            // Set warden info
-            if (currentUser.isAdmin) {
-                wardenInfo.textContent = 'Administrator';
-                userHostel.textContent = 'Administration';
-                userWarden.textContent = 'System Admin';
-                manageLeavesTab.style.display = 'block';
-                allReportsTab.style.display = 'block';
-            } else {
-                const hostel = hostelData[currentUser.hostelType].find(h => h.name === currentUser.hostelName);
-                wardenInfo.textContent = `Warden: ${hostel.warden}`;
-                userHostel.textContent = currentUser.hostelName;
-                userWarden.textContent = hostel.warden;
-                manageLeavesTab.style.display = 'none';
-                allReportsTab.style.display = 'none';
-            }
-            
-            userRoom.textContent = currentUser.room;
-            
-            // Set profile picture if exists
-            if (currentUser.avatar) {
-                userAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
-                userAvatar.textContent = '';
-                profilePicture.style.backgroundImage = `url(${currentUser.avatar})`;
-                profilePicture.textContent = '';
-            }
-            
-            // Load data and update UI
-            updateStats();
-            renderFeedbackList();
-            renderLeaves();
-            renderStudents();
-            renderReports();
-            renderAnnouncements();
-            renderRecentActivity();
-        }
-
-        // Theme toggle functionality
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            const icon = themeToggle.querySelector('i');
-            
-            if (document.body.classList.contains('dark-mode')) {
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-                currentUser.theme = 'dark';
-                showNotification('Dark mode enabled', 'success');
-            } else {
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
-                currentUser.theme = 'light';
-                showNotification('Light mode enabled', 'success');
-            }
-            
-            // Save user preference
-            const userIndex = users.findIndex(u => u.email === currentUser.email);
-            if (userIndex !== -1) {
-                users[userIndex].theme = currentUser.theme;
-                // Save to MongoDB
-                MongoDBService.updateUser(currentUser.id, { theme: currentUser.theme });
-            }
-            
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            themeSelect.value = currentUser.theme;
-        }
-
-        // Handle theme change from dropdown
-        function handleThemeChange() {
-            if (themeSelect.value === 'dark') {
-                if (!document.body.classList.contains('dark-mode')) {
-                    toggleTheme();
-                }
-            } else {
-                if (document.body.classList.contains('dark-mode')) {
-                    toggleTheme();
-                }
-            }
-        }
-
-        // Navigation handling
-        function handleNavigation(navItem) {
-            // Hide all content areas
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // Update active nav link
-            document.querySelectorAll('[data-nav]').forEach(link => {
-                link.classList.remove('active');
-            });
-            document.querySelector(`[data-nav="${navItem}"]`).classList.add('active');
-            
-            // Show corresponding content
-            document.getElementById(`${navItem}Content`).classList.add('active');
-            
-            // Reset tabs if navigating to a section with tabs
-            if (navItem === 'mess' || navItem === 'leave' || navItem === 'reports') {
-                const firstTab = document.querySelector(`#${navItem}Content .tab`);
-                if (firstTab) {
-                    const tabId = firstTab.getAttribute('data-tab');
-                    switchTab(tabId, navItem);
-                }
-            }
-        }
-
-        // Tab switching functionality
-        function switchTab(tabId, parentId) {
-            // Update active tab
-            const tabs = document.querySelectorAll(`#${parentId}Content .tab`);
-            tabs.forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelector(`#${parentId}Content .tab[data-tab="${tabId}"]`).classList.add('active');
-            
-            // Show corresponding content
-            const contents = document.querySelectorAll(`#${parentId}Content .tab-content`);
-            contents.forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(tabId).classList.add('active');
-        }
-
-        // Handle feedback form submission
-        async function handleFeedbackSubmit(e) {
-            e.preventDefault();
-            
-            // Get form values
-            const mealType = document.getElementById('mealType').value;
-            const foodRating = document.querySelector('input[name="foodRating"]:checked');
-            const menuRating = document.querySelector('input[name="menuRating"]:checked');
-            const comments = document.getElementById('comments').value;
-            
-            // Validation
-            if (!mealType || !foodRating || !menuRating) {
-                showNotification('Please fill in all required fields', 'error');
-                return;
-            }
-            
-            // Create feedback object
-            const feedback = {
-                user: currentUser.name,
-                email: currentUser.email,
-                mealType: mealType,
-                foodRating: parseInt(foodRating.value),
-                menuRating: parseInt(menuRating.value),
-                comments: comments,
-                date: new Date().toISOString(),
-                response: null
-            };
-            
-            // Add to MongoDB
-            const newFeedback = await MongoDBService.createFeedback(feedback);
-            
-            if (newFeedback) {
-                // Add to local array
-                feedbackData.unshift(newFeedback);
-                
-                // Update UI
-                updateStats();
-                renderFeedbackList();
-                renderRecentActivity();
-                
-                // Show success message
-                showNotification('Thank you for your feedback!', 'success');
-                
-                // Reset form
-                feedbackForm.reset();
-                
-                // Reset star colors
-                document.querySelectorAll('.rating label').forEach(label => {
-                    label.style.color = '#ddd';
-                });
-            } else {
-                showNotification('Error submitting feedback. Please try again.', 'error');
-            }
-        }
-
-        // Handle leave form submission
-        async function handleLeaveSubmit(e) {
-            e.preventDefault();
-            
-            // Get form values
-            const leaveType = document.getElementById('leaveType').value;
-            const leaveFrom = document.getElementById('leaveFrom').value;
-            const leaveTo = document.getElementById('leaveTo').value;
-            const leaveReason = document.getElementById('leaveReason').value;
-            
-            // Validation
-            if (!leaveType || !leaveFrom || !leaveTo || !leaveReason) {
-                showNotification('Please fill in all required fields', 'error');
-                return;
-            }
-            
-            // Create leave object
-            const leave = {
-                user: currentUser.name,
-                email: currentUser.email,
-                type: leaveType,
-                from: leaveFrom,
-                to: leaveTo,
-                reason: leaveReason,
-                status: 'pending',
-                date: new Date().toISOString()
-            };
-            
-            // Add to MongoDB
-            const newLeave = await MongoDBService.createLeave(leave);
-            
-            if (newLeave) {
-                // Add to local array
-                leaveData.unshift(newLeave);
-                
-                // Update UI
-                updateStats();
-                renderLeaves();
-                renderRecentActivity();
-                
-                // Show success message
-                showNotification('Leave application submitted successfully!', 'success');
-                
-                // Reset form
-                leaveForm.reset();
-            } else {
-                showNotification('Error submitting leave application. Please try again.', 'error');
-            }
-        }
-
-        // Handle student form submission
-        async function handleStudentSubmit(e) {
-            e.preventDefault();
-            
-            // Get form values
-            const name = document.getElementById('studentName').value;
-            const roll = document.getElementById('studentRoll').value;
-            const email = document.getElementById('studentEmail').value;
-            const room = document.getElementById('studentRoom').value;
-            const department = document.getElementById('studentDepartment').value;
-            const phone = document.getElementById('studentPhone').value;
-            
-            // Validation
-            if (!name || !roll || !email || !room || !department) {
-                showNotification('Please fill in all required fields', 'error');
-                return;
-            }
-            
-            // Check if student already exists
-            if (studentData.find(s => s.roll === roll)) {
-                showNotification('Student with this roll number already exists', 'error');
-                return;
-            }
-            
-            // Create student object
-            const student = {
-                name: name,
-                roll: roll,
-                email: email,
-                room: room,
-                department: department,
-                phone: phone,
-                date: new Date().toISOString()
-            };
-            
-            // Add to MongoDB
-            const newStudent = await MongoDBService.createStudent(student);
-            
-            if (newStudent) {
-                // Add to local array
-                studentData.unshift(newStudent);
-                
-                // Update UI
-                updateStats();
-                renderStudents();
-                renderRecentActivity();
-                
-                // Show success message
-                showNotification('Student added successfully!', 'success');
-                
-                // Reset form
-                studentForm.reset();
-            } else {
-                showNotification('Error adding student. Please try again.', 'error');
-            }
-        }
-
-        // Handle report form submission
-        async function handleReportSubmit(e) {
-            e.preventDefault();
-            
-            // Get form values
-            const category = document.getElementById('reportCategory').value;
-            const location = document.getElementById('reportLocation').value;
-            const description = document.getElementById('reportDescription').value;
-            const urgency = document.getElementById('reportUrgency').value;
-            
-            // Validation
-            if (!category || !location || !description || !urgency) {
-                showNotification('Please fill in all required fields', 'error');
-                return;
-            }
-            
-            // Create report object
-            const report = {
-                user: currentUser.name,
-                email: currentUser.email,
-                category: category,
-                location: location,
-                description: description,
-                urgency: urgency,
-                status: 'pending',
-                date: new Date().toISOString()
-            };
-            
-            // Add to MongoDB
-            const newReport = await MongoDBService.createReport(report);
-            
-            if (newReport) {
-                // Add to local array
-                reportData.unshift(newReport);
-                
-                // Update UI
-                updateStats();
-                renderReports();
-                renderRecentActivity();
-                
-                // Show success message
-                showNotification('Issue reported successfully!', 'success');
-                
-                // Reset form
-                reportForm.reset();
-            } else {
-                showNotification('Error reporting issue. Please try again.', 'error');
-            }
-        }
-
-        // Update statistics in sidebar and dashboard
-        function updateStats() {
-            // Sidebar stats
-            const pendingLeaves = leaveData.filter(leave => leave.status === 'pending').length;
-            pendingLeavesEl.textContent = pendingLeaves;
-            totalFeedbackEl.textContent = feedbackData.length;
-            totalReportsEl.textContent = reportData.length;
-            
-            // Dashboard stats
-            if (feedbackData.length > 0) {
-                const avgFoodRating = feedbackData.reduce((sum, feedback) => sum + feedback.foodRating, 0) / feedbackData.length;
-                const avgMenuRating = feedbackData.reduce((sum, feedback) => sum + feedback.menuRating, 0) / feedbackData.length;
-                const overallRating = ((avgFoodRating + avgMenuRating) / 2).toFixed(1);
-                messRatingEl.textContent = `${overallRating}/5`;
-            } else {
-                messRatingEl.textContent = "0/5";
-            }
-            
-            const approvedLeaves = leaveData.filter(leave => leave.status === 'approved').length;
-            approvedLeavesEl.textContent = approvedLeaves;
-            
-            const pendingReports = reportData.filter(report => report.status === 'pending').length;
-            pendingReportsEl.textContent = pendingReports;
-            
-            totalStudentsEl.textContent = studentData.length;
-        }
-
-        // Render feedback list
-        function renderFeedbackList() {
-            feedbackList.innerHTML = '';
-            
-            if (feedbackData.length === 0) {
-                feedbackList.innerHTML = '<p>No feedback submitted yet. Be the first to share your thoughts!</p>';
-                return;
-            }
-            
-            feedbackData.forEach(feedback => {
-                const feedbackItem = document.createElement('div');
-                feedbackItem.className = 'feedback-item';
-                
-                const date = new Date(feedback.date).toLocaleDateString('en-US', { 
-                    weekday: 'short', 
-                    month: 'short', 
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                // Only show delete button for current user's feedback or admin
-                const showDeleteButton = feedback.email === currentUser.email || currentUser.isAdmin;
-                
-                feedbackItem.innerHTML = `
-                    <div class="feedback-header">
-                        <span class="feedback-user">${feedback.user}</span>
-                        <span class="feedback-date">${date} • ${feedback.mealType}</span>
-                    </div>
-                    <div class="feedback-rating">
-                        <span>Food: ${'★'.repeat(feedback.foodRating)}${'☆'.repeat(5-feedback.foodRating)}</span>
-                        <span>Menu: ${'★'.repeat(feedback.menuRating)}${'☆'.repeat(5-feedback.menuRating)}</span>
-                    </div>
-                    <div class="feedback-message">
-                        ${feedback.comments || '<em>No additional comments</em>'}
-                    </div>
-                    ${feedback.response ? `
-                    <div class="feedback-response">
-                        <strong>Mess Manager:</strong> ${feedback.response}
-                    </div>
-                    ` : ''}
-                    <div style="margin-top: 10px;">
-                        ${showDeleteButton ? `
-                        <button class="btn btn-danger btn-sm delete-feedback-btn" data-id="${feedback.id}">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                        ` : ''}
-                    </div>
-                `;
-                
-                feedbackList.appendChild(feedbackItem);
-            });
-            
-            // Add event listeners to delete buttons
-            document.querySelectorAll('.delete-feedback-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.getAttribute('data-id');
-                    if (confirm('Are you sure you want to delete this feedback?')) {
-                        deleteFeedback(id);
-                    }
-                });
-            });
-        }
-
-        // Render students
-        function renderStudents() {
-            studentList.innerHTML = '';
-            
-            if (studentData.length === 0) {
-                studentList.innerHTML = '<p>No students found. Add students using the form above.</p>';
-                return;
-            }
-            
-            studentData.forEach(student => {
-                const studentItem = document.createElement('div');
-                studentItem.className = 'student-item';
-                
-                studentItem.innerHTML = `
-                    <div>
-                        <h4>${student.name}</h4>
-                        <p>${student.roll} • ${student.department} • Room ${student.room}</p>
-                        <p>${student.email} ${student.phone ? '• ' + student.phone : ''}</p>
-                    </div>
-                    <div class="student-actions">
-                        <button class="btn btn-primary btn-sm edit-student-btn" data-id="${student.id}">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button class="btn btn-danger btn-sm delete-student-btn" data-id="${student.id}">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </div>
-                `;
-                
-                studentList.appendChild(studentItem);
-            });
-            
-            // Add event listeners to edit/delete buttons
-            document.querySelectorAll('.edit-student-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.getAttribute('data-id');
-                    editStudent(id);
-                });
-            });
-            
-            document.querySelectorAll('.delete-student-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.getAttribute('data-id');
-                    if (confirm('Are you sure you want to delete this student?')) {
-                        deleteStudent(id);
-                    }
-                });
-            });
-        }
-
-        // Render reports
-        function renderReports() {
-            // My reports
-            myReportsList.innerHTML = '';
-            const myReports = reportData.filter(report => report.email === currentUser.email);
-            
-            if (myReports.length === 0) {
-                myReportsList.innerHTML = '<p>You haven\'t reported any issues yet.</p>';
-            } else {
-                myReports.forEach(report => {
-                    const reportItem = document.createElement('div');
-                    reportItem.className = 'report-item';
-                    
-                    const date = new Date(report.date).toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric',
-                        year: 'numeric'
-                    });
-                    
-                    reportItem.innerHTML = `
-                        <div class="report-header">
-                            <span class="report-category">${report.category}</span>
-                            <span>${date} • ${report.urgency}</span>
-                        </div>
-                        <p><strong>Location:</strong> ${report.location}</p>
-                        <p>${report.description}</p>
-                        <span class="leave-status status-${report.status}">${report.status}</span>
-                    `;
-                    
-                    myReportsList.appendChild(reportItem);
-                });
-            }
-            
-            // All reports (for admin)
-// In the renderLeaves function, update the admin section:
-if (currentUser.isAdmin) {
-    allLeavesList.innerHTML = '';
-    
-    if (leaveData.length === 0) {
-        allLeavesList.innerHTML = '<p>No leave applications found.</p>';
-    } else {
-        leaveData.forEach(leave => {
-            const leaveItem = document.createElement('div');
-            leaveItem.className = 'leave-item';
-            
-            const date = new Date(leave.date).toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric',
-                year: 'numeric'
-            });
-            
-            // Use _id for MongoDB or id for localStorage
-            const leaveId = leave._id || leave.id;
-            
-            leaveItem.innerHTML = `
-                <div class="leave-header">
-                    <span><strong>${leave.user}</strong> • ${leave.type} • ${date}</span>
-                    <span class="leave-status status-${leave.status}">${leave.status}</span>
-                </div>
-                <p><strong>From:</strong> ${leave.from} <strong>To:</strong> ${leave.to}</p>
-                <p>${leave.reason}</p>
-                ${leave.approvedBy ? `<p><strong>Approved by:</strong> ${leave.approvedBy} on ${new Date(leave.approvedAt).toLocaleDateString()}</p>` : ''}
-                <div style="margin-top: 10px;">
-                    ${leave.status === 'pending' ? `
-                    <button class="btn btn-success btn-sm approve-leave-btn" data-id="${leaveId}">
-                        <i class="fas fa-check"></i> Approve
-                    </button>
-                    <button class="btn btn-danger btn-sm reject-leave-btn" data-id="${leaveId}">
-                        <i class="fas fa-times"></i> Reject
-                    </button>
-                    ` : ''}
-                </div>
-            `;
-            
-            allLeavesList.appendChild(leaveItem);
-        });
-        
-        // Add event listeners to approve/reject buttons - CORRECTED
-        document.querySelectorAll('.approve-leave-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                updateLeaveStatus(id, 'approved');
-            });
-        });
-        
-        document.querySelectorAll('.reject-leave-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                updateLeaveStatus(id, 'rejected');
-            });
-        });
-    }
-}
-        }
-
-        // Render announcements
-        function renderAnnouncements() {
-            announcementsList.innerHTML = '';
-            
-            announcements.forEach(announcement => {
-                const announcementItem = document.createElement('div');
-                announcementItem.className = 'feedback-item';
-                
-                announcementItem.innerHTML = `
-                    <div class="feedback-header">
-                        <span class="feedback-user">${announcement.title}</span>
-                        <span class="feedback-date">${announcement.date}</span>
-                    </div>
-                    <div class="feedback-message">
-                        ${announcement.content}
-                    </div>
-                `;
-                
-                announcementsList.appendChild(announcementItem);
-            });
-        }
-
-        // Render recent activity
-        function renderRecentActivity() {
-            recentActivity.innerHTML = '';
-            
-            // Combine all activities
-            const activities = [];
-            
-            // Add feedback activities
-            feedbackData.slice(0, 3).forEach(feedback => {
-                activities.push({
-                    type: 'feedback',
-                    user: feedback.user,
-                    content: `Submitted feedback for ${feedback.mealType}`,
-                    date: feedback.date,
-                    icon: 'fas fa-utensils'
-                });
-            });
-            
-            // Add leave activities
-            leaveData.slice(0, 3).forEach(leave => {
-                activities.push({
-                    type: 'leave',
-                    user: leave.user,
-                    content: `Applied for ${leave.type} leave`,
-                    date: leave.date,
-                    icon: 'fas fa-calendar-alt'
-                });
-            });
-            
-            // Add report activities
-            reportData.slice(0, 3).forEach(report => {
-                activities.push({
-                    type: 'report',
-                    user: report.user,
-                    content: `Reported ${report.category} issue`,
-                    date: report.date,
-                    icon: 'fas fa-exclamation-triangle'
-                });
-            });
-            
-            // Sort by date (newest first)
-            activities.sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            // Display only the 5 most recent activities
-            const recentActivities = activities.slice(0, 5);
-            
-            if (recentActivities.length === 0) {
-                recentActivity.innerHTML = '<p>No recent activity.</p>';
-                return;
-            }
-            
-            recentActivities.forEach(activity => {
-                const activityItem = document.createElement('div');
-                activityItem.className = 'feedback-item';
-                
-                const date = new Date(activity.date).toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                activityItem.innerHTML = `
-                    <div class="feedback-header">
-                        <span><i class="${activity.icon}"></i> ${activity.user}</span>
-                        <span class="feedback-date">${date}</span>
-                    </div>
-                    <div class="feedback-message">
-                        ${activity.content}
-                    </div>
-                `;
-                
-                recentActivity.appendChild(activityItem);
-            });
-        }
-// Update leave status - CORRECTED VERSION
-async function updateLeaveStatus(id, status) {
-    try {
-        console.log('Updating leave status:', id, status);
-        
-        // Use the correct API endpoint format
-        const response = await fetch(`${MONGODB_CONFIG.API_URL}/leaves/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ status: status })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            // Update local data
-            const leaveIndex = leaveData.findIndex(l => l._id == id || l.id == id);
-            if (leaveIndex !== -1) {
-                leaveData[leaveIndex].status = status;
-                leaveData[leaveIndex].approvedBy = 'Admin';
-                leaveData[leaveIndex].approvedAt = new Date().toISOString();
-                
-                // Update in MongoDB service
-                await MongoDBService.updateLeave(id, { 
-                    status: status, 
-                    approvedBy: 'Admin', 
-                    approvedAt: new Date().toISOString() 
-                });
-            }
-            
-            renderLeaves();
-            updateStats();
-            renderRecentActivity();
-            showNotification(`Leave application ${status} successfully`, 'success');
-        } else {
-            throw new Error(result.error);
-        }
-    } catch (error) {
-        console.error('Error updating leave status:', error);
-        
-        // Fallback to localStorage if API fails
-        const leaveIndex = leaveData.findIndex(l => l._id == id || l.id == id);
-        if (leaveIndex !== -1) {
-            leaveData[leaveIndex].status = status;
-            leaveData[leaveIndex].approvedBy = 'Admin';
-            leaveData[leaveIndex].approvedAt = new Date().toISOString();
-            
-            renderLeaves();
-            updateStats();
-            renderRecentActivity();
-            showNotification(`Leave application ${status} successfully (offline mode)`, 'success');
-        } else {
-            showNotification(`Error updating leave: ${error.message}`, 'error');
-        }
-    }
-}
-// Render leaves - CORRECTED VERSION
-function renderLeaves() {
-    // My leaves
-    myLeavesList.innerHTML = '';
-    const myLeaves = leaveData.filter(leave => leave.email === currentUser.email);
-    
-    if (myLeaves.length === 0) {
-        myLeavesList.innerHTML = '<p>You haven\'t applied for any leaves yet.</p>';
-    } else {
-        myLeaves.forEach(leave => {
-            const leaveItem = document.createElement('div');
-            leaveItem.className = 'leave-item';
-            
-            const date = new Date(leave.date).toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric',
-                year: 'numeric'
-            });
-            
-            leaveItem.innerHTML = `
-                <div class="leave-header">
-                    <span><strong>${leave.type}</strong> • ${date}</span>
-                    <span class="leave-status status-${leave.status}">${leave.status}</span>
-                </div>
-                <p><strong>From:</strong> ${leave.from} <strong>To:</strong> ${leave.to}</p>
-                <p>${leave.reason}</p>
-                ${leave.approvedBy ? `<p><strong>Approved by:</strong> ${leave.approvedBy} on ${new Date(leave.approvedAt).toLocaleDateString()}</p>` : ''}
-            `;
-            
-            myLeavesList.appendChild(leaveItem);
-        });
-    }
-    
-    // All leaves (for admin)
-    if (currentUser.isAdmin) {
-        allLeavesList.innerHTML = '';
-        
-        if (leaveData.length === 0) {
-            allLeavesList.innerHTML = '<p>No leave applications found.</p>';
-        } else {
-            leaveData.forEach(leave => {
-                const leaveItem = document.createElement('div');
-                leaveItem.className = 'leave-item';
-                
-                const date = new Date(leave.date).toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric',
-                    year: 'numeric'
-                });
-                
-                leaveItem.innerHTML = `
-                    <div class="leave-header">
-                        <span><strong>${leave.user}</strong> • ${leave.type} • ${date}</span>
-                        <span class="leave-status status-${leave.status}">${leave.status}</span>
-                    </div>
-                    <p><strong>From:</strong> ${leave.from} <strong>To:</strong> ${leave.to}</p>
-                    <p>${leave.reason}</p>
-                    ${leave.approvedBy ? `<p><strong>Approved by:</strong> ${leave.approvedBy} on ${new Date(leave.approvedAt).toLocaleDateString()}</p>` : ''}
-                    <div style="margin-top: 10px;">
-                        ${leave.status === 'pending' ? `
-                        <button class="btn btn-success btn-sm approve-leave-btn" data-id="${leave.id}">
-                            <i class="fas fa-check"></i> Approve
-                        </button>
-                        <button class="btn btn-danger btn-sm reject-leave-btn" data-id="${leave.id}">
-                            <i class="fas fa-times"></i> Reject
-                        </button>
-                        ` : ''}
-                    </div>
-                `;
-                
-                allLeavesList.appendChild(leaveItem);
-            });
-            
-            // Add event listeners to approve/reject buttons - CORRECTED
-            document.querySelectorAll('.approve-leave-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.getAttribute('data-id');
-                    updateLeaveStatus(id, 'approved');
-                });
-            });
-            
-            document.querySelectorAll('.reject-leave-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.getAttribute('data-id');
-                    updateLeaveStatus(id, 'rejected');
-                });
-            });
-        }
-    }
-}
-
-
-        // Update report status
-        async function updateReportStatus(id, status) {
-            const report = reportData.find(r => r.id == id);
-            if (report) {
-                report.status = status;
-                
-                // Update in MongoDB
-                await MongoDBService.updateReport(id, { status: status });
-                
-                renderReports();
-                updateStats();
-                renderRecentActivity();
-                showNotification(`Report marked as ${status}`, 'success');
-            }
-        }
-
-        // Delete feedback
-        async function deleteFeedback(id) {
-            // Delete from MongoDB
-            await MongoDBService.deleteFeedback(id);
-            
-            // Update local data
-            feedbackData = feedbackData.filter(f => f.id != id);
-            
-            renderFeedbackList();
-            updateStats();
-            renderRecentActivity();
-            showNotification('Feedback deleted successfully', 'success');
-        }
-
-        // Edit student
-        function editStudent(id) {
-            const student = studentData.find(s => s.id == id);
-            if (student) {
-                document.getElementById('studentName').value = student.name;
-                document.getElementById('studentRoll').value = student.roll;
-                document.getElementById('studentEmail').value = student.email;
-                document.getElementById('studentRoom').value = student.room;
-                document.getElementById('studentDepartment').value = student.department;
-                document.getElementById('studentPhone').value = student.phone || '';
-                
-                // Change form to update mode
-                studentForm.querySelector('button').innerHTML = '<i class="fas fa-save"></i> Update Student';
-                studentForm.setAttribute('data-edit-id', id);
-                
-                showNotification('Student data loaded for editing', 'success');
-            }
-        }
-
-        // Delete student
-        async function deleteStudent(id) {
-            // Delete from MongoDB
-            await MongoDBService.deleteStudent(id);
-            
-            // Update local data
-            studentData = studentData.filter(s => s.id != id);
-            
-            renderStudents();
-            updateStats();
-            showNotification('Student deleted successfully', 'success');
-        }
-
-        // Filter leaves by student
-        function filterLeaves() {
-            const searchTerm = searchStudent.value.toLowerCase();
-            const leaves = allLeavesList.querySelectorAll('.leave-item');
-            
-            leaves.forEach(leave => {
-                const text = leave.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    leave.style.display = 'block';
-                } else {
-                    leave.style.display = 'none';
-                }
-            });
-        }
-
-        // Filter students
-        function filterStudents() {
-            const searchTerm = searchStudentList.value.toLowerCase();
-            const students = studentList.querySelectorAll('.student-item');
-            
-            students.forEach(student => {
-                const text = student.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    student.style.display = 'flex';
-                } else {
-                    student.style.display = 'none';
-                }
-            });
-        }
-
-        // Filter reports
-        function filterReports() {
-            const searchTerm = searchReports.value.toLowerCase();
-            const reports = allReportsList.querySelectorAll('.report-item');
-            
-            reports.forEach(report => {
-                const text = report.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    report.style.display = 'block';
-                } else {
-                    report.style.display = 'none';
-                }
-            });
-        }
-
-        // Save profile settings
-        async function saveProfileSettings() {
-            const newName = displayNameInput.value;
-            const newRoom = roomNumberInput.value;
-            
-            if (newName && newRoom) {
-                // Update current user
-                currentUser.name = newName;
-                currentUser.room = newRoom;
-                
-                // Update in MongoDB
-                await MongoDBService.updateUser(currentUser.id, { 
-                    name: newName, 
-                    room: newRoom 
-                });
-                
-                // Update users array
-                const userIndex = users.findIndex(u => u.email === currentUser.email);
-                if (userIndex !== -1) {
-                    users[userIndex].name = newName;
-                    users[userIndex].room = newRoom;
-                }
-                
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                // Update UI
-                userDisplayName.textContent = newName;
-                userAvatar.textContent = newName.charAt(0).toUpperCase();
-                profilePicture.textContent = newName.charAt(0).toUpperCase();
-                userRoom.textContent = newRoom;
-                
-                // Update feedback with new name in MongoDB
-                feedbackData.forEach(async feedback => {
-                    if (feedback.email === currentUser.email) {
-                        feedback.user = newName;
-                        await MongoDBService.updateFeedback(feedback.id, { user: newName });
-                    }
-                });
-                
-                // Update leaves with new name in MongoDB
-                leaveData.forEach(async leave => {
-                    if (leave.email === currentUser.email) {
-                        leave.user = newName;
-                        await MongoDBService.updateLeave(leave.id, { user: newName });
-                    }
-                });
-                
-                // Update reports with new name in MongoDB
-                reportData.forEach(async report => {
-                    if (report.email === currentUser.email) {
-                        report.user = newName;
-                        await MongoDBService.updateReport(report.id, { user: newName });
-                    }
-                });
-                
-                renderFeedbackList();
-                renderLeaves();
-                renderReports();
-                renderRecentActivity();
-                
-                showNotification('Profile updated successfully', 'success');
-            } else {
-                showNotification('Please fill in all fields', 'error');
-            }
-        }
-
-        // Upload profile picture
-        function uploadProfilePicture() {
-            const file = profilePictureInput.files[0];
-            
-            if (file) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    const imageUrl = e.target.result;
-                    
-                    // Update current user
-                    currentUser.avatar = imageUrl;
-                    
-                    // Update users array
-                    const userIndex = users.findIndex(u => u.email === currentUser.email);
-                    if (userIndex !== -1) {
-                        users[userIndex].avatar = imageUrl;
-                        // Update in MongoDB
-                        MongoDBService.updateUser(currentUser.id, { avatar: imageUrl });
-                    }
-                    
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    // Update UI
-                    userAvatar.style.backgroundImage = `url(${imageUrl})`;
-                    userAvatar.textContent = '';
-                    profilePicture.style.backgroundImage = `url(${imageUrl})`;
-                    profilePicture.textContent = '';
-                    
-                    showNotification('Profile picture updated successfully', 'success');
-                };
-                
-                reader.readAsDataURL(file);
-            } else {
-                showNotification('Please select a picture first', 'error');
-            }
-        }
-
-        // Show notification
-        function showNotification(message, type) {
-            notification.textContent = message;
-            notification.className = `notification ${type}`;
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
-
-
