@@ -387,11 +387,6 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
-
 // Initialize sample data
 async function initSampleData() {
     try {
@@ -431,4 +426,4 @@ async function initSampleData() {
 }
 
 // Export for testing
-module.exports = { app, initSampleData };
+module.exports = app;
