@@ -9,13 +9,21 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, '../public')));
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hostel_management';
+
+// Connect to MongoDB with error handling
 mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+}).then(() => {
+    console.log('Connected to MongoDB');
+}).catch((error) => {
+    console.log('MongoDB connection error:', error);
 });
 
 const db = mongoose.connection;
@@ -382,9 +390,18 @@ app.post('/api/payments', async (req, res) => {
     }
 });
 
-// Serve the main application
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        success: true, 
+        message: 'Server is running', 
+        timestamp: new Date().toISOString() 
+    });
+});
+
+// Serve the main application - THIS MUST BE THE LAST ROUTE
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // Initialize sample data
@@ -425,5 +442,13 @@ async function initSampleData() {
     }
 }
 
-// Export for testing
+// Initialize data when server starts
+initSampleData();
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+
+// Export for Vercel
 module.exports = app;

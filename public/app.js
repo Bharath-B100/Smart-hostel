@@ -1,6 +1,7 @@
 // MongoDB Configuration
 const MONGODB_CONFIG = {
-    API_URL: 'http://localhost:3000/api'
+    API_URL: window.location.origin + '/api'
+    // This will automatically work for both localhost and production
 };
 
 // Hostel and warden data
@@ -232,6 +233,11 @@ class MongoDBService {
         return result.data;
     }
     
+    static async updateRoomAllocation(allocationId, updates) {
+        const result = await this.makeAPIRequest('room-allocations', 'PUT', { _id: allocationId, ...updates });
+        return result.data;
+    }
+    
     // Attendance
     static async getAttendance() {
         const result = await this.makeAPIRequest('attendance');
@@ -251,6 +257,11 @@ class MongoDBService {
     
     static async createVisitor(visitor) {
         const result = await this.makeAPIRequest('visitors', 'POST', visitor);
+        return result.data;
+    }
+    
+    static async updateVisitor(visitorId, updates) {
+        const result = await this.makeAPIRequest('visitors', 'PUT', { _id: visitorId, ...updates });
         return result.data;
     }
     
@@ -1795,3 +1806,11 @@ async function markVisitorExit(visitorId) {
         showNotification('Visitor exit recorded', 'success');
     }
 }
+
+// Make functions globally available for onclick events
+window.updateLeaveStatus = updateLeaveStatus;
+window.updateReportStatus = updateReportStatus;
+window.editStudent = editStudent;
+window.deleteStudent = deleteStudent;
+window.vacateRoom = vacateRoom;
+window.markVisitorExit = markVisitorExit;
