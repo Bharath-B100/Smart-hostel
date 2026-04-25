@@ -34,3 +34,8 @@
 {"level":"info","message":"Environment: production","service":"smart-hostel-api","timestamp":"2026-04-25 12:15:51"}
 {"level":"info","message":"Connected to MongoDB","service":"smart-hostel-api","timestamp":"2026-04-25 12:15:51"}
 {"level":"info","message":"Connected to MongoDB","service":"smart-hostel-api","timestamp":"2026-04-25 12:15:51"}
+{"level":"info","message":"Server is running on port 3000","service":"smart-hostel-api","timestamp":"2026-04-25 12:17:27"}
+{"level":"info","message":"Environment: production","service":"smart-hostel-api","timestamp":"2026-04-25 12:17:27"}
+{"level":"info","message":"Connected to MongoDB","service":"smart-hostel-api","timestamp":"2026-04-25 12:17:27"}
+{"level":"info","message":"Connected to MongoDB","service":"smart-hostel-api","timestamp":"2026-04-25 12:17:27"}
+{"level":"info","message":"Admin user created","service":"smart-hostel-api","timestamp":"2026-04-25 12:17:27"}
