@@ -11,4 +11,9 @@ const reportSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now }
 }, { timestamps: true });
 
+// Database indexes for performance
+reportSchema.index({ email: 1 });
+reportSchema.index({ status: 1 });
+reportSchema.index({ category: 1 });
+
 module.exports = mongoose.model('Report', reportSchema);

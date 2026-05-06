@@ -9,4 +9,8 @@ const studentSchema = new mongoose.Schema({
     phone: { type: String, default: '' }
 }, { timestamps: true });
 
+// Database indexes for performance (roll already indexed via unique:true)
+studentSchema.index({ email: 1 });
+studentSchema.index({ department: 1 });
+
 module.exports = mongoose.model('Student', studentSchema);

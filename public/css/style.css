@@ -409,10 +409,7 @@ button.loading i {
     background-color: rgba(52, 152, 219, 0.1);
 }
 
-.girls-option.selected {
-    border-color: #e84393;
-    background-color: rgba(232, 67, 147, 0.1);
-}
+
 
 .hostel-option i {
     font-size: 1.5rem;
@@ -423,9 +420,7 @@ button.loading i {
     color: var(--primary);
 }
 
-.girls-option i {
-    color: #e84393;
-}
+
 
 .btn {
     padding: 12px 20px;

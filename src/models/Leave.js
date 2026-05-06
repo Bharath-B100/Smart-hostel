@@ -11,4 +11,9 @@ const leaveSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now }
 }, { timestamps: true });
 
+// Database indexes for performance
+leaveSchema.index({ email: 1 });
+leaveSchema.index({ status: 1 });
+leaveSchema.index({ email: 1, status: 1 });
+
 module.exports = mongoose.model('Leave', leaveSchema);

@@ -4,10 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dr N.G.P IT - Smart Hostel Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/premium.css">
 </head>
 <body>
+    <!-- Decorative Background Elements for Glassmorphism -->
+    <div class="glass-bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
     <!-- Loading Screen -->
     <div class="loading-screen" id="loadingScreen">
         <div class="college-logo">
@@ -28,22 +38,16 @@
             
             <form id="loginForm" aria-label="Login form">
                 <div class="form-group">
-                    <label for="hostelType">Select Hostel Type</label>
-                    <div class="hostel-type" role="group" aria-label="Hostel type selection">
-                        <div class="hostel-option boys-option" data-type="boys" role="button" tabindex="0" aria-label="Boys Hostel">
-                            <i class="fas fa-male"></i>
-                            <div>Boys Hostel</div>
-                        </div>
-                        <div class="hostel-option girls-option" data-type="girls" role="button" tabindex="0" aria-label="Girls Hostel">
-                            <i class="fas fa-female"></i>
-                            <div>Girls Hostel</div>
-                        </div>
+                    <label>Hostel Type</label>
+                    <div style="color: var(--text-primary); font-weight: 600; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid var(--glass-border);">
+                        <i class="fas fa-male" style="margin-right: 8px; color: var(--primary);"></i>
+                        Boys Hostel
                     </div>
                 </div>
 
                 <div class="form-group" id="hostelSelection" style="display: none;">
                     <label for="hostelName">Select Hostel</label>
-                    <select class="form-control" id="hostelName" required aria-required="true">
+                    <select class="form-control" id="hostelName">
                         <option value="">Select Hostel</option>
                     </select>
                 </div>
@@ -54,15 +58,16 @@
                     <small id="email-help" class="form-text">Use your college email ID</small>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 20px;">
                     <label for="password">Password</label>
-                    <input type="password" class="form-control" id="password" placeholder="Enter your password" required aria-required="true" aria-describedby="password-strength">
-                    <div id="password-strength" class="password-strength" aria-live="polite">
-                        <div class="password-strength-bar"></div>
-                        <div class="password-strength-bar"></div>
-                        <div class="password-strength-bar"></div>
+                    <div class="password-input-wrapper" style="position: relative;">
+                        <input type="password" class="form-control" id="password" placeholder="Enter your password" required aria-required="true" style="padding-right: 40px;">
+                        <i class="fas fa-eye toggle-password" data-target="password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-secondary); transition: color 0.3s;"></i>
                     </div>
-                    <div id="password-strength-text" class="password-strength-text"></div>
+                </div>
+                
+                <div style="text-align: right; margin-bottom: 20px;">
+                    <a href="#" id="showForgotPassword" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem;">Forgot Password?</a>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%;" aria-label="Login to account">
@@ -95,11 +100,54 @@
 
                 <div class="form-group">
                     <label for="adminPassword">Password</label>
-                    <input type="password" class="form-control" id="adminPassword" placeholder="Enter admin password" required aria-required="true">
+                    <div class="password-input-wrapper" style="position: relative;">
+                        <input type="password" class="form-control" id="adminPassword" placeholder="Enter admin password" required aria-required="true" style="padding-right: 40px;">
+                        <i class="fas fa-eye toggle-password" data-target="adminPassword" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-secondary); transition: color 0.3s;"></i>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%;" aria-label="Login as admin">
                     <i class="fas fa-sign-in-alt"></i> Login as Admin
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Forgot Password Modal -->
+    <div class="modal" id="forgotPasswordModal" role="dialog" aria-modal="true" aria-labelledby="forgotPasswordTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="forgotPasswordTitle">Reset Password</h2>
+                <button class="close-modal" id="closeForgotModal" aria-label="Close forgot password modal">&times;</button>
+            </div>
+            
+            <form id="forgotPasswordForm" aria-label="Forgot password form">
+                <p style="margin-bottom: 15px; color: var(--text-secondary); font-size: 0.9rem;">
+                    Enter your registered email ID. We will simulate sending a 4-digit OTP to this email.
+                </p>
+                <div class="form-group">
+                    <label for="forgotEmail">Email ID</label>
+                    <input type="email" class="form-control" id="forgotEmail" placeholder="Enter your email" required aria-required="true">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-paper-plane"></i> Send OTP
+                </button>
+            </form>
+            
+            <form id="resetPasswordForm" aria-label="Reset password form" style="display: none;">
+                <p style="margin-bottom: 15px; color: var(--success); font-size: 0.9rem;">
+                    An OTP has been sent! (Check the server console or the success notification for the demo code)
+                </p>
+                <div class="form-group">
+                    <label for="resetOtp">Enter OTP</label>
+                    <input type="text" class="form-control" id="resetOtp" placeholder="4-digit OTP" required aria-required="true" maxlength="4">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" class="form-control" id="newPassword" placeholder="Enter new password" required aria-required="true">
+                </div>
+                <button type="submit" class="btn btn-success" style="width: 100%;">
+                    <i class="fas fa-lock"></i> Reset Password
                 </button>
             </form>
         </div>
@@ -132,9 +180,6 @@
                             </div>
                         </div>
                         <div class="warden-info" id="wardenInfo">Warden: </div>
-                        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light theme">
-                            <i class="fas fa-moon"></i>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -310,10 +355,15 @@
                                     <h3>Hostel Reports</h3>
                                     <p>Report issues and problems</p>
                                 </div>
-                                <div class="card" style="padding: 20px; text-align: center; cursor: pointer;" data-nav="attendance">
+                                <div class="card admin-only-card" style="padding: 20px; text-align: center; cursor: pointer;" data-nav="attendance">
                                     <i class="fas fa-user-check fa-3x" style="color: var(--accent); margin-bottom: 15px;"></i>
                                     <h3>Attendance</h3>
                                     <p>Mark and view attendance</p>
+                                </div>
+                                <div class="card admin-only-card" style="padding: 20px; text-align: center; cursor: pointer;" data-nav="students">
+                                    <i class="fas fa-users fa-3x" style="color: var(--success); margin-bottom: 15px;"></i>
+                                    <h3>Student Management</h3>
+                                    <p>Manage student records</p>
                                 </div>
                             </div>
                         </div>
@@ -847,16 +897,7 @@
                             <button class="btn btn-primary" id="saveProfileBtn">Save Profile Changes</button>
                         </div>
                         
-                        <div class="settings-section">
-                            <h3>Appearance</h3>
-                            <div class="form-group">
-                                <label for="themeSelect">Theme</label>
-                                <select class="form-control" id="themeSelect">
-                                    <option value="light">Light Mode</option>
-                                    <option value="dark">Dark Mode</option>
-                                </select>
-                            </div>
-                        </div>
+
                         
                         <div class="settings-section">
                             <h3>Account Actions</h3>
@@ -958,10 +999,6 @@
             </div>
         </footer>
 
-        <!-- Emergency Button -->
-        <button class="emergency-btn" id="emergencyBtn" title="Emergency Help">
-            <i class="fas fa-bell"></i>
-        </button>
 
         <!-- Scroll to Top Button -->
         <button class="scroll-top-btn" id="scrollTopBtn" title="Scroll to top">

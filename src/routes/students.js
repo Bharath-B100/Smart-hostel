@@ -2,12 +2,14 @@ const express = require('express');
 const { validate } = require('../middleware/validation');
 const { authenticate, requireAdmin } = require('../middleware/auth');
 const Student = require('../models/Student');
+const { connectToDatabase } = require('../lib/db');
 
 const router = express.Router();
 
 // Get all students
 router.get('/', authenticate, async (req, res) => {
     try {
+        await connectToDatabase();
         const students = await Student.find().sort({ createdAt: -1 });
         res.json({ success: true, data: students });
     } catch (error) {
@@ -18,6 +20,7 @@ router.get('/', authenticate, async (req, res) => {
 // Create student
 router.post('/', authenticate, requireAdmin, validate('student'), async (req, res) => {
     try {
+        await connectToDatabase();
         const student = new Student(req.body);
         await student.save();
         res.json({ success: true, data: student });
@@ -29,6 +32,7 @@ router.post('/', authenticate, requireAdmin, validate('student'), async (req, re
 // Update student
 router.put('/:id', authenticate, requireAdmin, async (req, res) => {
     try {
+        await connectToDatabase();
         const student = await Student.findByIdAndUpdate(req.params.id, req.body, { new: true });
         res.json({ success: true, data: student });
     } catch (error) {
@@ -39,6 +43,7 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
 // Delete student
 router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
     try {
+        await connectToDatabase();
         await Student.findByIdAndDelete(req.params.id);
         res.json({ success: true, data: { deletedCount: 1 } });
     } catch (error) {

@@ -9,4 +9,9 @@ const attendanceSchema = new mongoose.Schema({
     recordedBy: { type: String, required: true }
 }, { timestamps: true });
 
+// Database indexes for performance
+attendanceSchema.index({ studentId: 1, date: 1 });
+attendanceSchema.index({ date: 1 });
+attendanceSchema.index({ status: 1 });
+
 module.exports = mongoose.model('Attendance', attendanceSchema);

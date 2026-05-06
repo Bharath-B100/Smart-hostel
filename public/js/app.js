@@ -22,23 +22,6 @@ const hostelData = {
             warden: "Vijay Anand",
             rooms: ["101", "102", "103", "104", "105", "201", "202", "203", "204", "205"]
         }
-    ],
-    girls: [
-        { 
-            name: "Mullai Hostel", 
-            warden: "Lakshmi Priya",
-            rooms: ["101", "102", "103", "104", "105", "201", "202", "203", "204", "205"]
-        },
-        { 
-            name: "Palai Hostel", 
-            warden: "Geetha Rani",
-            rooms: ["101", "102", "103", "104", "105", "201", "202", "203", "204", "205"]
-        },
-        { 
-            name: "Kaanum Hostel", 
-            warden: "Shanti Devi",
-            rooms: ["101", "102", "103", "104", "105", "201", "202", "203", "204", "205"]
-        }
     ]
 };
 
@@ -209,7 +192,7 @@ class MongoDBService {
     }
     
     static async deleteStudent(studentId) {
-        const result = await this.makeAPIRequest('students', 'DELETE', { _id: studentId });
+        const result = await this.makeAPIRequest(`students/${studentId}`, 'DELETE');
         return result.data;
     }
     
@@ -293,6 +276,11 @@ const adminLoginForm = document.getElementById('adminLoginForm');
 const adminLoginModal = document.getElementById('adminLoginModal');
 const showAdminLogin = document.getElementById('showAdminLogin');
 const closeAdminModal = document.getElementById('closeAdminModal');
+const showForgotPassword = document.getElementById('showForgotPassword');
+const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+const closeForgotModal = document.getElementById('closeForgotModal');
+const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+const resetPasswordForm = document.getElementById('resetPasswordForm');
 const hostelTypeOptions = document.querySelectorAll('.hostel-option');
 const hostelSelection = document.getElementById('hostelSelection');
 const hostelNameSelect = document.getElementById('hostelName');
@@ -305,8 +293,8 @@ const wardenInfo = document.getElementById('wardenInfo');
 const userHostel = document.getElementById('userHostel');
 const userWarden = document.getElementById('userWarden');
 const userRoom = document.getElementById('userRoom');
-const themeToggle = document.getElementById('themeToggle');
-const themeSelect = document.getElementById('themeSelect');
+// Theme is now fixed to dark mode
+document.body.classList.add('dark-mode');
 const notification = document.getElementById('notification');
 const mobileMenuToggle = document.getElementById('mobileMenuToggle');
 const navLinks = document.querySelector('.nav-links');
@@ -363,45 +351,7 @@ const paymentForm = document.getElementById('paymentForm');
 const paymentRecordsList = document.getElementById('paymentRecordsList');
 const paymentStudent = document.getElementById('paymentStudent');
 
-// Password strength checker
-function checkPasswordStrength(password) {
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
-    if (password.match(/\d/)) strength++;
-    if (password.match(/[^a-zA-Z\d]/)) strength++;
 
-    return strength;
-}
-
-function updatePasswordStrengthIndicator(password) {
-    const strength = checkPasswordStrength(password);
-    const bars = document.querySelectorAll('.password-strength-bar');
-    const text = document.getElementById('password-strength-text');
-
-    bars.forEach((bar, index) => {
-        bar.classList.remove('weak', 'medium', 'strong');
-        if (index < strength) {
-            if (strength === 1) bar.classList.add('weak');
-            else if (strength === 2) bar.classList.add('medium');
-            else if (strength >= 3) bar.classList.add('strong');
-        }
-    });
-
-    if (text) {
-        if (password.length === 0) {
-            text.textContent = '';
-        } else if (strength === 1) {
-            text.textContent = 'Weak password';
-        } else if (strength === 2) {
-            text.textContent = 'Medium password';
-        } else if (strength >= 3) {
-            text.textContent = 'Strong password';
-        } else {
-            text.textContent = 'Very weak password';
-        }
-    }
-}
 
 // Load saved theme from localStorage
 function loadSavedTheme() {
@@ -421,7 +371,8 @@ function loadSavedTheme() {
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
-    loadSavedTheme();
+    // Set dark mode by default
+    document.body.classList.add('dark-mode');
 
     setTimeout(() => {
         loadingScreen.classList.add('hidden');
@@ -429,8 +380,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const savedUser = localStorage.getItem('currentUser');
         if (savedUser) {
             currentUser = JSON.parse(savedUser);
-            applyUserTheme();
             showApp();
+            // Only load data if user is logged in
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                loadInitialData();
+            }
         } else {
             showLogin();
         }
@@ -444,52 +399,77 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     setupEventListeners();
-    loadInitialData();
 });
 
-// Load initial data
-async function loadInitialData() {
+// Helper: safe fetch that never throws — returns [] on failure
+async function safeFetch(fn, label) {
     try {
-        users = await MongoDBService.getUsers();
-        feedbackData = await MongoDBService.getFeedback();
-        leaveData = await MongoDBService.getLeaves();
-        studentData = await MongoDBService.getStudents();
-        reportData = await MongoDBService.getReports();
-        roomAllocations = await MongoDBService.getRoomAllocations();
-        attendanceData = await MongoDBService.getAttendance();
-        visitorData = await MongoDBService.getVisitors();
-        paymentData = await MongoDBService.getPayments();
-
-        // Initialize with sample data if empty
-        if (studentData.length === 0) {
-            const sampleStudents = [
-                {
-                    name: "John Doe",
-                    roll: "23CB001",
-                    email: "23cb001@drngpit.ac.in",
-                    room: "101",
-                    department: "CSE",
-                    phone: "9876543210"
-                },
-                {
-                    name: "Jane Smith",
-                    roll: "23CB002",
-                    email: "23cb002@drngpit.ac.in",
-                    room: "102",
-                    department: "ECE",
-                    phone: "9876543211"
-                }
-            ];
-
-            for (const student of sampleStudents) {
-                await MongoDBService.createStudent(student);
+        return await fn();
+    } catch (err) {
+        // If the token is invalid/expired, force logout
+        if (err && err.message && (err.message.includes('401') || err.message.includes('403'))) {
+            console.warn(`Auth error on ${label}:`, err.message);
+            if (err.message.includes('401')) {
+                // Token expired — force re-login
+                handleLogout();
+                showNotification('Session expired. Please log in again.', 'error');
             }
-            studentData = await MongoDBService.getStudents();
+        } else {
+            console.warn(`Failed to load ${label}:`, err.message || err);
         }
+        return [];
+    }
+}
 
-    } catch (error) {
-        console.error('Error loading data:', error);
-        showNotification('Failed to load initial data. Using local storage fallback.', 'warning');
+// Load initial data — each call is independent; one failure won't block the rest
+async function loadInitialData() {
+    // Admin-only endpoints
+    if (currentUser && currentUser.isAdmin) {
+        users = await safeFetch(() => MongoDBService.getUsers(), 'users');
+    }
+
+    // Endpoints accessible to all authenticated users
+    [feedbackData, leaveData, studentData, reportData,
+     roomAllocations, attendanceData, visitorData, paymentData] = await Promise.all([
+        safeFetch(() => MongoDBService.getFeedback(),        'feedback'),
+        safeFetch(() => MongoDBService.getLeaves(),          'leaves'),
+        safeFetch(() => MongoDBService.getStudents(),        'students'),
+        safeFetch(() => MongoDBService.getReports(),         'reports'),
+        safeFetch(() => MongoDBService.getRoomAllocations(), 'room-allocations'),
+        safeFetch(() => MongoDBService.getAttendance(),      'attendance'),
+        safeFetch(() => MongoDBService.getVisitors(),        'visitors'),
+        safeFetch(() => MongoDBService.getPayments(),        'payments'),
+    ]);
+
+    // Seed sample students only when admin and list is empty
+    if (currentUser && currentUser.isAdmin && studentData.length === 0) {
+        const sampleStudents = [
+            { name: 'John Doe',   roll: '23CB001', email: '23cb001@drngpit.ac.in', room: '101', department: 'CSE', phone: '9876543210' },
+            { name: 'Jane Smith', roll: '23CB002', email: '23cb002@drngpit.ac.in', room: '102', department: 'ECE', phone: '9876543211' }
+        ];
+        for (const s of sampleStudents) {
+            await safeFetch(() => MongoDBService.createStudent(s), 'seed-student');
+        }
+        studentData = await safeFetch(() => MongoDBService.getStudents(), 'students-reload');
+    }
+
+    // Refresh UI with freshly loaded data
+    try { await updateStats(); } catch (_) {}
+    try { renderRecentActivity(); } catch (_) {}
+    
+    // Trigger render for all loaded components
+    try {
+        if (typeof renderFeedbackList === 'function') renderFeedbackList();
+        if (typeof renderLeaves === 'function') renderLeaves();
+        if (typeof renderStudents === 'function') renderStudents();
+        if (typeof renderReports === 'function') renderReports();
+        if (typeof renderAnnouncements === 'function') renderAnnouncements();
+        if (typeof initializeRoomManagement === 'function') initializeRoomManagement();
+        if (typeof initializeAttendance === 'function') initializeAttendance();
+        if (typeof initializeVisitors === 'function') initializeVisitors();
+        if (typeof renderPaymentRecords === 'function') renderPaymentRecords();
+    } catch (e) {
+        console.error('Error rendering initial data:', e);
     }
 }
 
@@ -504,21 +484,50 @@ function setupEventListeners() {
     
     loginForm.addEventListener('submit', handleLogin);
 
-    // Password strength indicator
-    const passwordInput = document.getElementById('password');
-    if (passwordInput) {
-        passwordInput.addEventListener('input', function() {
-            updatePasswordStrengthIndicator(this.value);
+    // Password visibility toggle
+    document.querySelectorAll('.toggle-password').forEach(icon => {
+        icon.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const passwordInput = document.getElementById(targetId);
+            if (passwordInput) {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.classList.toggle('fa-eye');
+                this.classList.toggle('fa-eye-slash');
+            }
         });
-    }
+    });
 
     showAdminLogin.addEventListener('click', () => adminLoginModal.style.display = 'flex');
     closeAdminModal.addEventListener('click', () => adminLoginModal.style.display = 'none');
     adminLoginForm.addEventListener('submit', handleAdminLogin);
+
+    if (showForgotPassword) {
+        showForgotPassword.addEventListener('click', (e) => {
+            e.preventDefault();
+            forgotPasswordModal.style.display = 'flex';
+            forgotPasswordForm.style.display = 'block';
+            resetPasswordForm.style.display = 'none';
+            forgotPasswordForm.reset();
+            resetPasswordForm.reset();
+        });
+    }
+
+    if (closeForgotModal) {
+        closeForgotModal.addEventListener('click', () => {
+            forgotPasswordModal.style.display = 'none';
+        });
+    }
+
+    if (forgotPasswordForm) {
+        forgotPasswordForm.addEventListener('submit', handleForgotPassword);
+    }
+
+    if (resetPasswordForm) {
+        resetPasswordForm.addEventListener('submit', handleResetPassword);
+    }
     logoutBtn.addEventListener('click', handleLogout);
     logoutSettingsBtn.addEventListener('click', handleLogout);
-    themeToggle.addEventListener('click', toggleTheme);
-    themeSelect.addEventListener('change', handleThemeChange);
 
     // Mobile menu toggle
     if (mobileMenuToggle) {
@@ -667,7 +676,7 @@ function setupEventListeners() {
         });
     });
     
-    emergencyBtn.addEventListener('click', handleEmergency);
+    emergencyBtn && emergencyBtn.addEventListener('click', handleEmergency);
     markAttendanceBtn.addEventListener('click', () => handleNavigation('attendance'));
     registerVisitorBtn.addEventListener('click', () => handleNavigation('visitors'));
     roomAllocationForm.addEventListener('submit', handleRoomAllocation);
@@ -691,10 +700,8 @@ function setupEventListeners() {
 
 // Handle hostel type selection
 function selectHostelType(type) {
-    hostelTypeOptions.forEach(option => {
-        option.classList.remove('selected');
-    });
-    document.querySelector(`.${type}-option`).classList.add('selected');
+    // We only have boys hostel now
+    type = 'boys';
     
     hostelSelection.style.display = 'block';
     hostelNameSelect.innerHTML = '<option value="">Select Hostel</option>';
@@ -712,7 +719,7 @@ async function handleLogin(e) {
 
     const email = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    const hostelType = document.querySelector('.hostel-option.selected')?.getAttribute('data-type');
+    const hostelType = 'boys';
     const hostelName = document.getElementById('hostelName').value;
     const submitBtn = loginForm.querySelector('button[type="submit"]');
 
@@ -747,9 +754,10 @@ async function handleLogin(e) {
             currentUser = result.data.user;
             showApp();
             showNotification('Login successful!', 'success');
+            loadInitialData(); // Load live data immediately after login
         } else {
             console.error('Login error:', result.error);
-            showNotification(result.error || 'Login failed', 'error');
+            showNotification('check your password again', 'error');
         }
     } catch (error) {
         console.error('Login error:', error);
@@ -795,8 +803,9 @@ async function handleAdminLogin(e) {
             adminLoginModal.style.display = 'none';
             showApp();
             showNotification('Admin login successful!', 'success');
+            loadInitialData(); // Load live data immediately after admin login
         } else {
-            showNotification(result.error || 'Admin login failed', 'error');
+            showNotification('check your password again', 'error');
         }
     } catch (error) {
         console.error('Admin login error:', error);
@@ -809,6 +818,77 @@ async function handleAdminLogin(e) {
     }
 }
 
+// Handle Forgot Password
+async function handleForgotPassword(e) {
+    e.preventDefault();
+    const email = document.getElementById('forgotEmail').value;
+    const submitBtn = forgotPasswordForm.querySelector('button[type="submit"]');
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    
+    try {
+        const response = await fetch(`${MONGODB_CONFIG.API_URL}/auth/forgot-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('OTP sent! Check console for demo code.', 'success');
+            forgotPasswordForm.style.display = 'none';
+            resetPasswordForm.style.display = 'block';
+            resetPasswordForm.dataset.email = email;
+        } else {
+            showNotification(result.error || 'Failed to send OTP', 'error');
+        }
+    } catch (err) {
+        showNotification('Network error. Please try again.', 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send OTP';
+    }
+}
+
+// Handle Reset Password
+async function handleResetPassword(e) {
+    e.preventDefault();
+    const email = resetPasswordForm.dataset.email;
+    const otp = document.getElementById('resetOtp').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const submitBtn = resetPasswordForm.querySelector('button[type="submit"]');
+    
+    if (newPassword.length < 6) {
+        showNotification('Password must be at least 6 characters', 'error');
+        return;
+    }
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...';
+    
+    try {
+        const response = await fetch(`${MONGODB_CONFIG.API_URL}/auth/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, otp, newPassword })
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Password reset successful! You can now login.', 'success');
+            forgotPasswordModal.style.display = 'none';
+        } else {
+            showNotification(result.error || 'Invalid OTP or failed to reset', 'error');
+        }
+    } catch (err) {
+        showNotification('Network error. Please try again.', 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-lock"></i> Reset Password';
+    }
+}
+
 // Handle logout
 function handleLogout() {
     currentUser = null;
@@ -818,50 +898,42 @@ function handleLogout() {
     showNotification('You have been logged out', 'success');
 }
 
-// Apply user's theme preference
-function applyUserTheme() {
-    if (currentUser && currentUser.theme === 'dark') {
-        document.body.classList.add('dark-mode');
-        themeSelect.value = 'dark';
-        const icon = themeToggle.querySelector('i');
-        icon.classList.remove('fa-moon');
-        icon.classList.add('fa-sun');
-    } else {
-        document.body.classList.remove('dark-mode');
-        themeSelect.value = 'light';
-        const icon = themeToggle.querySelector('i');
-        icon.classList.remove('fa-sun');
-        icon.classList.add('fa-moon');
-    }
-}
-
-// Show/hide navigation based on user role
+// Show/hide navigation and sidebar content based on user role
 function setupRoleBasedNavigation() {
     if (!currentUser) return;
-
     const isAdmin = currentUser.isAdmin;
-    const navLinks = document.querySelectorAll('.nav-links li');
 
-    navLinks.forEach(li => {
-        const link = li.querySelector('a');
-        const navItem = link.getAttribute('data-nav');
+    // Nav links
+    document.querySelectorAll('.nav-links li').forEach(li => {
+        const navItem = li.querySelector('a')?.getAttribute('data-nav');
+        const adminOnly = ['students', 'rooms', 'attendance', 'payments'];
+        li.style.display = (adminOnly.includes(navItem) && !isAdmin) ? 'none' : 'block';
+    });
 
-        // Admin-only features
-        const adminOnlyFeatures = ['students', 'rooms', 'attendance', 'payments'];
-
-        if (adminOnlyFeatures.includes(navItem) && !isAdmin) {
-            li.style.display = 'none';
-        } else {
-            li.style.display = 'block';
+    // Sidebar: hide admin-only stat rows from students
+    const adminStatIds = ['roomOccupancy', 'todayAttendance'];
+    adminStatIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            const row = el.closest('.stat-item');
+            if (row) row.style.display = isAdmin ? 'flex' : 'none';
         }
     });
 
-    // Add admin badge to header if admin
+    // Quick Actions: hide Mark Attendance & Register Visitor from students
+    const adminActionIds = ['markAttendanceBtn', 'registerVisitorBtn'];
+    adminActionIds.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.style.display = isAdmin ? 'block' : 'none';
+    });
+
+    // Admin badge
     if (isAdmin) {
-        const userDisplayName = document.getElementById('userDisplayName');
-        if (userDisplayName) {
-            userDisplayName.innerHTML = `${currentUser.name} <span class="admin-badge">Admin</span>`;
-        }
+        const el = document.getElementById('userDisplayName');
+        if (el) el.innerHTML = `${currentUser.name} <span class="admin-badge">Admin</span>`;
+        document.body.classList.add('is-admin');
+    } else {
+        document.body.classList.remove('is-admin');
     }
 }
 
@@ -870,16 +942,21 @@ function showLogin() {
     loginPage.style.display = 'flex';
     appContainer.style.display = 'none';
     loginForm.reset();
-    hostelSelection.style.display = 'none';
-    hostelTypeOptions.forEach(option => {
-        option.classList.remove('selected');
-    });
+    
+    // Automatically initialize for boys hostel
+    selectHostelType('boys');
 }
 
 // Show main application
 async function showApp() {
     loginPage.style.display = 'none';
     appContainer.style.display = 'block';
+
+    // Apply role-based themes
+    document.body.classList.remove('theme-admin', 'theme-girls');
+    if (currentUser.isAdmin) {
+        document.body.classList.add('theme-admin');
+    }
 
     userDisplayName.textContent = currentUser.name;
     userAvatar.textContent = currentUser.name.charAt(0).toUpperCase();
@@ -933,39 +1010,7 @@ async function showApp() {
     initializeVisitors();
 }
 
-// Theme toggle functionality
-function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    const icon = themeToggle.querySelector('i');
-    icon.classList.toggle('fa-moon');
-    icon.classList.toggle('fa-sun');
-    currentUser.theme = isDark ? 'dark' : 'light';
-    showNotification(isDark ? 'Dark mode enabled' : 'Light mode enabled', 'success');
-
-    const userIndex = users.findIndex(u => u.email === currentUser.email);
-    if (userIndex !== -1) {
-        users[userIndex].theme = currentUser.theme;
-        localStorage.setItem('users', JSON.stringify(users));
-    }
-
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    themeSelect.value = currentUser.theme;
-}
-
-// Handle theme change from dropdown
-function handleThemeChange() {
-    if (themeSelect.value === 'dark') {
-        if (!document.body.classList.contains('dark-mode')) {
-            toggleTheme();
-        }
-    } else {
-        if (document.body.classList.contains('dark-mode')) {
-            toggleTheme();
-        }
-    }
-}
+// Theme toggle functionality removed - dark mode is now default
 
 // Navigation handling
 function handleNavigation(navItem) {
@@ -1035,8 +1080,8 @@ async function handleFeedbackSubmit(e) {
         email: currentUser.email,
         mealType: mealType,
         foodRating: parseInt(foodRating.value),
-        comments: comments,
-        date: new Date().toISOString(),
+        comments: comments || '',
+        date: new Date(),
         response: null
     };
 
@@ -1098,11 +1143,10 @@ async function handleLeaveSubmit(e) {
         user: currentUser.name,
         email: currentUser.email,
         type: leaveType,
-        from: leaveFrom,
-        to: leaveTo,
-        reason: leaveReason,
-        status: 'pending',
-        date: new Date().toISOString()
+        from: new Date(leaveFrom),
+        to: new Date(leaveTo),
+        reason: leaveReason
+        // status and date are set server-side; Joi rejects unknown fields
     };
 
     try {
@@ -1142,7 +1186,8 @@ async function handleStudentSubmit(e) {
         return;
     }
 
-    if (studentData.find(s => s.roll === studentRoll)) {
+    const editingId = studentForm.dataset.editingId;
+    if (!editingId && studentData.find(s => s.roll === studentRoll)) {
         showNotification('Student with this roll number already exists', 'error');
         return;
     }
@@ -1160,17 +1205,25 @@ async function handleStudentSubmit(e) {
     };
 
     try {
-        await MongoDBService.createStudent(student);
+        const editingId = studentForm.dataset.editingId;
+        if (editingId) {
+            await MongoDBService.updateStudent(editingId, student);
+            delete studentForm.dataset.editingId;
+            submitBtn.innerHTML = '<i class="fas fa-plus"></i> Add Student';
+            showNotification('Student updated successfully!', 'success');
+        } else {
+            await MongoDBService.createStudent(student);
+            showNotification('Student added successfully!', 'success');
+        }
         studentData = await MongoDBService.getStudents();
-
         await updateStats();
         await renderStudents();
-
-        showNotification('Student added successfully!', 'success');
+        // Refresh dropdowns that depend on student list
+        refreshStudentDropdowns();
         studentForm.reset();
         clearFormValidation(studentForm);
     } catch (error) {
-        showNotification('Failed to add student. Please try again.', 'error');
+        showNotification('Failed to save student. Please try again.', 'error');
         console.error('Student submission error:', error);
     } finally {
         submitBtn.classList.remove('loading');
@@ -1202,9 +1255,8 @@ async function handleReportSubmit(e) {
         category: reportCategory,
         location: reportLocation,
         description: reportDescription,
-        urgency: reportUrgency,
-        status: 'pending',
-        date: new Date().toISOString()
+        urgency: reportUrgency
+        // status and date are set server-side; Joi rejects unknown fields
     };
 
     try {
@@ -1314,7 +1366,7 @@ async function handleSaveAttendance() {
         const attendance = {
             studentId: studentId,
             studentName: studentName,
-            date: date,
+            date: new Date(date),
             status: 'present',
             type: type,
             recordedBy: currentUser.name
@@ -1351,9 +1403,9 @@ async function handleVisitorRegistration(e) {
         phone: visitorPhone,
         purpose: visitorPurpose,
         studentVisiting: student.name,
-        entryTime: new Date().toISOString(),
+        entryTime: new Date(),
         status: 'visiting',
-        expectedDuration: expectedDuration
+        expectedDuration: parseInt(expectedDuration)
     };
     
     await MongoDBService.createVisitor(visitor);
@@ -1388,7 +1440,7 @@ async function handlePaymentSubmission(e) {
         amount: parseFloat(amount),
         type: paymentType,
         method: paymentMethod,
-        date: paymentDate,
+        date: new Date(paymentDate),
         status: 'paid'
     };
     
@@ -1473,7 +1525,7 @@ async function renderFeedbackList() {
                 <div class="empty-state-title">No Feedback Yet</div>
                 <div class="empty-state-description">Be the first to share your thoughts about the mess food!</div>
                 <div class="empty-state-action">
-                    <button class="btn btn-primary" onclick="handleNavigation('mess')">
+                    <button class="btn btn-primary" data-action="navigate" data-target="mess">
                         <i class="fas fa-plus"></i> Submit Feedback
                     </button>
                 </div>
@@ -1517,7 +1569,7 @@ async function renderLeaves() {
                 <div class="empty-state-title">No Leave Applications</div>
                 <div class="empty-state-description">You haven't applied for any leave yet.</div>
                 <div class="empty-state-action">
-                    <button class="btn btn-primary" onclick="handleNavigation('leave')">
+                    <button class="btn btn-primary" data-action="navigate" data-target="leave">
                         <i class="fas fa-plus"></i> Apply for Leave
                     </button>
                 </div>
@@ -1529,19 +1581,19 @@ async function renderLeaves() {
         myLeaves.forEach(leave => {
             const leaveItem = document.createElement('div');
             leaveItem.className = 'leave-item';
-            
+            const fromDate = new Date(leave.from).toLocaleDateString();
+            const toDate = new Date(leave.to).toLocaleDateString();
             leaveItem.innerHTML = `
                 <div class="leave-header">
                     <div>
-                        <strong>${leave.type} Leave</strong>
-                        <div>${leave.from} to ${leave.to}</div>
+                        <strong>${leave.type.charAt(0).toUpperCase()+leave.type.slice(1)} Leave</strong>
+                        <div>${fromDate} to ${toDate}</div>
                     </div>
                     <div class="leave-status status-${leave.status}">${leave.status}</div>
                 </div>
                 <div class="leave-reason">${leave.reason}</div>
-                <div class="leave-date">Applied on: ${new Date(leave.date).toLocaleDateString()}</div>
+                <div class="leave-date">Applied on: ${new Date(leave.createdAt || leave.date || Date.now()).toLocaleDateString()}</div>
             `;
-            
             myLeavesList.appendChild(leaveItem);
         });
     }
@@ -1561,24 +1613,24 @@ async function renderLeaves() {
             leaveData.forEach(leave => {
                 const leaveItem = document.createElement('div');
                 leaveItem.className = 'leave-item';
-                
+                const fromDate = new Date(leave.from).toLocaleDateString();
+                const toDate = new Date(leave.to).toLocaleDateString();
                 leaveItem.innerHTML = `
                     <div class="leave-header">
                         <div>
                             <strong>${leave.user}</strong>
-                            <div>${leave.type} Leave: ${leave.from} to ${leave.to}</div>
+                            <div>${leave.type.charAt(0).toUpperCase()+leave.type.slice(1)} Leave: ${fromDate} to ${toDate}</div>
                         </div>
                         <div class="leave-status status-${leave.status}">${leave.status}</div>
                     </div>
                     <div class="leave-reason">${leave.reason}</div>
-                    <div class="leave-actions">
+                    <div class="leave-actions" style="margin-top:10px;display:flex;gap:8px;">
                         ${leave.status === 'pending' ? `
-                            <button class="btn btn-success btn-sm" onclick="updateLeaveStatus('${leave._id}', 'approved')">Approve</button>
-                            <button class="btn btn-danger btn-sm" onclick="updateLeaveStatus('${leave._id}', 'rejected')">Reject</button>
-                        ` : ''}
+                            <button class="btn btn-success btn-sm" data-action="updateLeaveStatus" data-id="${leave._id}" data-status="approved">✓ Approve</button>
+                            <button class="btn btn-danger btn-sm" data-action="updateLeaveStatus" data-id="${leave._id}" data-status="rejected">✗ Reject</button>
+                        ` : `<span style="color:var(--text-secondary);font-size:0.85rem;">Status: ${leave.status}</span>`}
                     </div>
                 `;
-                
                 allLeavesList.appendChild(leaveItem);
             });
         }
@@ -1598,7 +1650,7 @@ async function renderStudents() {
                 <div class="empty-state-title">No Students</div>
                 <div class="empty-state-description">No students have been added to the system yet.</div>
                 <div class="empty-state-action">
-                    <button class="btn btn-primary" onclick="document.getElementById('studentName').focus()">
+                    <button class="btn btn-primary" data-action="focus" data-target="studentName">
                         <i class="fas fa-plus"></i> Add First Student
                     </button>
                 </div>
@@ -1618,8 +1670,8 @@ async function renderStudents() {
                 <div>${student.email} | ${student.phone}</div>
             </div>
             <div class="student-actions">
-                <button class="btn btn-warning btn-sm" onclick="editStudent('${student._id}')">Edit</button>
-                <button class="btn btn-danger btn-sm" onclick="deleteStudent('${student._id}')">Delete</button>
+                <button class="btn btn-warning btn-sm" data-action="editStudent" data-id="${student._id}">Edit</button>
+                <button class="btn btn-danger btn-sm" data-action="deleteStudent" data-id="${student._id}">Delete</button>
             </div>
         `;
         
@@ -1643,7 +1695,7 @@ async function renderReports() {
                 <div class="empty-state-title">No Reports</div>
                 <div class="empty-state-description">You haven't reported any issues yet.</div>
                 <div class="empty-state-action">
-                    <button class="btn btn-primary" onclick="handleNavigation('reports')">
+                    <button class="btn btn-primary" data-action="navigate" data-target="reports">
                         <i class="fas fa-plus"></i> Report an Issue
                     </button>
                 </div>
@@ -1672,12 +1724,10 @@ async function renderReports() {
     }
     
     if (currentUser.isAdmin) {
-        if (allReportsList.children.length === 0) {
+        if (reportData.length === 0) {
             allReportsList.innerHTML = `
                 <div class="empty-state">
-                    <div class="empty-state-icon">
-                        <i class="fas fa-clipboard-check"></i>
-                    </div>
+                    <div class="empty-state-icon"><i class="fas fa-clipboard-check"></i></div>
                     <div class="empty-state-title">No Reports</div>
                     <div class="empty-state-description">No issues have been reported yet.</div>
                 </div>
@@ -1686,27 +1736,24 @@ async function renderReports() {
             reportData.forEach(report => {
                 const reportItem = document.createElement('div');
                 reportItem.className = 'report-item';
-                
                 reportItem.innerHTML = `
                     <div class="report-header">
                         <div>
-                            <strong>${report.user}</strong>
-                            <div class="report-category">${report.category}</div>
+                            <strong style="color:var(--text-primary)">${report.user}</strong>
+                            <div class="report-category">${report.category} — <em>${report.urgency}</em></div>
                         </div>
                         <div class="leave-status status-${report.status}">${report.status}</div>
                     </div>
-                    <div><strong>Location:</strong> ${report.location}</div>
-                    <div><strong>Urgency:</strong> ${report.urgency}</div>
-                    <div><strong>Description:</strong> ${report.description}</div>
-                    <div class="report-actions">
+                    <div style="color:var(--text-primary);margin:6px 0"><strong>Location:</strong> ${report.location}</div>
+                    <div style="color:var(--text-secondary);margin-bottom:8px">${report.description}</div>
+                    <div class="report-actions" style="display:flex;gap:8px;">
                         ${report.status === 'pending' ? `
-                            <button class="btn btn-success btn-sm" onclick="updateReportStatus('${report._id}', 'in-progress')">Start Work</button>
+                            <button class="btn btn-info btn-sm" data-action="updateReportStatus" data-id="${report._id}" data-status="in-progress">Start Work</button>
                         ` : report.status === 'in-progress' ? `
-                            <button class="btn btn-success btn-sm" onclick="updateReportStatus('${report._id}', 'resolved')">Mark Resolved</button>
-                        ` : ''}
+                            <button class="btn btn-success btn-sm" data-action="updateReportStatus" data-id="${report._id}" data-status="resolved">Mark Resolved</button>
+                        ` : `<span style="color:var(--success);font-size:0.85rem;">✓ Resolved</span>`}
                     </div>
                 `;
-                
                 allReportsList.appendChild(reportItem);
             });
         }
@@ -1795,14 +1842,16 @@ function initializeRoomManagement() {
     });
     
     allocateRoom.innerHTML = '<option value="">Select Room</option>';
-    const hostel = hostelData[currentUser.hostelType].find(h => h.name === currentUser.hostelName);
-    if (hostel) {
-        hostel.rooms.forEach(room => {
-            const option = document.createElement('option');
-            option.value = room;
-            option.textContent = room;
-            allocateRoom.appendChild(option);
-        });
+    if (currentUser.hostelType && hostelData[currentUser.hostelType]) {
+        const hostel = hostelData[currentUser.hostelType].find(h => h.name === currentUser.hostelName);
+        if (hostel) {
+            hostel.rooms.forEach(room => {
+                const option = document.createElement('option');
+                option.value = room;
+                option.textContent = room;
+                allocateRoom.appendChild(option);
+            });
+        }
     }
     
     renderRoomAllocations();
@@ -1822,7 +1871,7 @@ async function renderRoomAllocations() {
                 <div class="empty-state-title">No Room Allocations</div>
                 <div class="empty-state-description">No rooms have been allocated to students yet.</div>
                 <div class="empty-state-action">
-                    <button class="btn btn-primary" onclick="document.getElementById('allocateStudent').focus()">
+                    <button class="btn btn-primary" data-action="focus" data-target="allocateStudent">
                         <i class="fas fa-plus"></i> Allocate First Room
                     </button>
                 </div>
@@ -1831,9 +1880,9 @@ async function renderRoomAllocations() {
         return;
     }
 
-    const filteredAllocations = roomAllocations.filter(
-        allocation => allocation.hostelName === currentUser.hostelName
-    );
+    const filteredAllocations = currentUser.isAdmin 
+        ? roomAllocations 
+        : roomAllocations.filter(allocation => allocation.hostelName === currentUser.hostelName);
     
     if (filteredAllocations.length === 0) {
         roomAllocationsList.innerHTML = '<div class="student-item">No room allocations found.</div>';
@@ -1851,7 +1900,7 @@ async function renderRoomAllocations() {
                 <div>Allocated on: ${new Date(allocation.allocationDate).toLocaleDateString()}</div>
             </div>
             <div class="student-actions">
-                <button class="btn btn-danger btn-sm" onclick="vacateRoom('${allocation._id}')">Vacate</button>
+                <button class="btn btn-danger btn-sm" data-action="vacateRoom" data-id="${allocation._id}">Vacate</button>
             </div>
         `;
         
@@ -1863,7 +1912,8 @@ async function renderRoomAllocations() {
 function renderRoomAvailability() {
     roomAvailabilityGrid.innerHTML = '';
     
-    const hostel = hostelData[currentUser.hostelType].find(h => h.name === currentUser.hostelName);
+    const hostelTypeData = currentUser.hostelType ? hostelData[currentUser.hostelType] : null;
+    const hostel = hostelTypeData ? hostelTypeData.find(h => h.name === currentUser.hostelName) : null;
     if (!hostel) return;
     
     hostel.rooms.forEach(room => {
@@ -1997,7 +2047,7 @@ async function renderVisitorRecords() {
                 <div class="empty-state-title">No Visitor Records</div>
                 <div class="empty-state-description">No visitors have been registered yet.</div>
                 <div class="empty-state-action">
-                    <button class="btn btn-primary" onclick="document.getElementById('visitorName').focus()">
+                    <button class="btn btn-primary" data-action="focus" data-target="visitorName">
                         <i class="fas fa-plus"></i> Register First Visitor
                     </button>
                 </div>
@@ -2010,18 +2060,21 @@ async function renderVisitorRecords() {
         const visitorItem = document.createElement('div');
         visitorItem.className = 'student-item';
         
+        const student = studentData.find(s => s._id === visitor.studentVisiting);
+        const visitingName = student ? student.name : visitor.studentVisiting;
+        
         visitorItem.innerHTML = `
             <div>
                 <strong>${visitor.name}</strong>
                 <div>Phone: ${visitor.phone}</div>
-                <div>Visiting: ${visitor.studentVisiting}</div>
+                <div>Visiting: ${visitingName}</div>
                 <div>Purpose: ${visitor.purpose}</div>
                 <div>Entry: ${new Date(visitor.entryTime).toLocaleString()}</div>
                 ${visitor.exitTime ? `<div>Exit: ${new Date(visitor.exitTime).toLocaleString()}</div>` : ''}
             </div>
             <div class="student-actions">
                 ${visitor.status === 'visiting' ? `
-                    <button class="btn btn-success btn-sm" onclick="markVisitorExit('${visitor._id}')">Mark Exit</button>
+                    <button class="btn btn-success btn-sm" data-action="markVisitorExit" data-id="${visitor._id}">Mark Exit</button>
                 ` : ''}
             </div>
         `;
@@ -2043,7 +2096,7 @@ async function renderPaymentRecords() {
                 <div class="empty-state-title">No Payment Records</div>
                 <div class="empty-state-description">No payments have been recorded yet.</div>
                 <div class="empty-state-action">
-                    <button class="btn btn-primary" onclick="document.getElementById('paymentAmount').focus()">
+                    <button class="btn btn-primary" data-action="focus" data-target="paymentAmount">
                         <i class="fas fa-plus"></i> Record First Payment
                     </button>
                 </div>
@@ -2075,30 +2128,31 @@ async function renderPaymentRecords() {
 
 // Profile settings
 async function saveProfileSettings() {
-    const displayName = displayNameInput.value;
-    const roomNumber = roomNumberInput.value;
+    const displayName = displayNameInput.value.trim();
+    const roomNumber = roomNumberInput.value.trim();
     
     if (!displayName || !roomNumber) {
         showNotification('Please fill in all fields', 'error');
         return;
     }
     
-    currentUser.name = displayName;
-    currentUser.room = roomNumber;
-    
-    userDisplayName.textContent = displayName;
-    userAvatar.textContent = displayName.charAt(0).toUpperCase();
-    profilePicture.textContent = displayName.charAt(0).toUpperCase();
-    userRoom.textContent = roomNumber;
-    
-    const userIndex = users.findIndex(u => u.email === currentUser.email);
-    if (userIndex !== -1) {
-        users[userIndex] = currentUser;
+    try {
+        await MongoDBService.makeAPIRequest('auth/profile', 'PUT', { name: displayName, room: roomNumber });
+        
+        currentUser.name = displayName;
+        currentUser.room = roomNumber;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        
+        userDisplayName.textContent = displayName;
+        userAvatar.textContent = displayName.charAt(0).toUpperCase();
+        profilePicture.textContent = displayName.charAt(0).toUpperCase();
+        userRoom.textContent = roomNumber;
+        
+        showNotification('Profile updated and saved!', 'success');
+    } catch (err) {
+        console.error('Profile save error:', err);
+        showNotification('Failed to save profile. Please try again.', 'error');
     }
-    
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    
-    showNotification('Profile updated successfully!', 'success');
 }
 
 // Upload profile picture
@@ -2151,11 +2205,11 @@ function renderPagination(totalItems, containerId, renderCallback) {
 
     let paginationHTML = `
         <div class="pagination">
-            <button onclick="changePage(${currentPage - 1}, '${containerId}')" ${currentPage === 1 ? 'disabled' : ''}>
+            <button data-action="changePage" data-page="${currentPage - 1}" data-container="${containerId}" ${currentPage === 1 ? 'disabled' : ''}>
                 <i class="fas fa-chevron-left"></i> Previous
             </button>
             <span class="pagination-info">Page ${currentPage} of ${totalPages} (${totalItems} items)</span>
-            <button onclick="changePage(${currentPage + 1}, '${containerId}')" ${currentPage === totalPages ? 'disabled' : ''}>
+            <button data-action="changePage" data-page="${currentPage + 1}" data-container="${containerId}" ${currentPage === totalPages ? 'disabled' : ''}>
                 Next <i class="fas fa-chevron-right"></i>
             </button>
         </div>
@@ -2301,6 +2355,46 @@ async function updateLeaveStatus(leaveId, status) {
     }
 }
 
+// Handle visitor registration
+async function handleVisitorRegistration(e) {
+    e.preventDefault();
+    const visitorName = document.getElementById('visitorName').value.trim();
+    const visitorPhone = document.getElementById('visitorPhone').value.trim();
+    const visitorPurpose = document.getElementById('visitorPurpose').value;
+    const studentVisiting = document.getElementById('studentVisiting').value;
+    const expectedDuration = document.getElementById('expectedDuration').value;
+
+    if (!visitorName || !visitorPhone || !visitorPurpose || !studentVisiting) {
+        showNotification('Please fill in all fields', 'error');
+        return;
+    }
+
+    try {
+        const newVisitor = {
+            name: visitorName,
+            phone: visitorPhone,
+            purpose: visitorPurpose,
+            studentVisiting: studentVisiting,
+            expectedDuration: parseInt(expectedDuration),
+            entryTime: new Date().toISOString(),
+            status: 'visiting'
+        };
+
+        await MongoDBService.makeAPIRequest('visitors', 'POST', newVisitor);
+        visitorData = await MongoDBService.getVisitors();
+        
+        document.getElementById('visitorForm').reset();
+        await renderVisitorRecords();
+        showNotification('Visitor registered successfully!', 'success');
+        
+        switchTab('visitor-records', 'visitors');
+    } catch (err) {
+        showNotification('Failed to register visitor: ' + (err.message || err), 'error');
+        console.error('Visitor registration error:', err);
+    }
+}
+
+
 // Update report status
 async function updateReportStatus(reportId, status) {
     const reportIndex = reportData.findIndex(report => report._id === reportId);
@@ -2320,16 +2414,20 @@ async function updateReportStatus(reportId, status) {
 // Edit student
 function editStudent(studentId) {
     const student = studentData.find(s => s._id === studentId);
-    
     if (student) {
         document.getElementById('studentName').value = student.name;
         document.getElementById('studentRoll').value = student.roll;
         document.getElementById('studentEmail').value = student.email;
         document.getElementById('studentRoom').value = student.room;
         document.getElementById('studentDepartment').value = student.department;
-        document.getElementById('studentPhone').value = student.phone;
-        
-        showNotification('Student data loaded for editing', 'success');
+        document.getElementById('studentPhone').value = student.phone || '';
+        // Mark form as editing
+        studentForm.dataset.editingId = studentId;
+        const btn = studentForm.querySelector('button[type="submit"]');
+        if (btn) btn.innerHTML = '<i class="fas fa-save"></i> Update Student';
+        // Scroll to form
+        document.getElementById('studentName').scrollIntoView({ behavior: 'smooth' });
+        showNotification('Edit the fields above and click Update Student', 'success');
     }
 }
 
@@ -2338,17 +2436,16 @@ async function deleteStudent(studentId) {
     if (!confirm('Are you sure you want to delete this student? This action cannot be undone.')) {
         return;
     }
-
-    const studentIndex = studentData.findIndex(s => s._id === studentId);
-
-    if (studentIndex !== -1) {
+    try {
         await MongoDBService.deleteStudent(studentId);
         studentData = await MongoDBService.getStudents();
-
         await updateStats();
         await renderStudents();
-
+        refreshStudentDropdowns();
         showNotification('Student deleted successfully!', 'success');
+    } catch (err) {
+        showNotification('Failed to delete student: ' + (err.message || err), 'error');
+        console.error('Delete error:', err);
     }
 }
 
@@ -2403,3 +2500,67 @@ window.editStudent = editStudent;
 window.deleteStudent = deleteStudent;
 window.vacateRoom = vacateRoom;
 window.markVisitorExit = markVisitorExit;
+
+// Refresh all dropdowns that list students (visitor form, room allocation, payment)
+function refreshStudentDropdowns() {
+    // Visitor dropdown
+    if (studentVisiting) {
+        studentVisiting.innerHTML = '<option value="">Select Student</option>';
+        studentData.forEach(s => {
+            const o = document.createElement('option');
+            o.value = s._id; o.textContent = `${s.name} (${s.roll})`;
+            studentVisiting.appendChild(o);
+        });
+    }
+    // Room allocation dropdown
+    if (allocateStudent) {
+        allocateStudent.innerHTML = '<option value="">Select Student</option>';
+        studentData.forEach(s => {
+            const o = document.createElement('option');
+            o.value = s._id; o.textContent = `${s.name} (${s.roll})`;
+            allocateStudent.appendChild(o);
+        });
+    }
+    // Payment dropdown
+    if (paymentStudent) {
+        paymentStudent.innerHTML = '<option value="">Select Student</option>';
+        studentData.forEach(s => {
+            const o = document.createElement('option');
+            o.value = s._id; o.textContent = `${s.name} (${s.roll})`;
+            paymentStudent.appendChild(o);
+        });
+    }
+}
+
+// Event Delegation for dynamically generated elements
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    
+    const action = btn.getAttribute('data-action');
+    
+    if (action === 'navigate') {
+        handleNavigation(btn.getAttribute('data-target'));
+    } else if (action === 'updateLeaveStatus') {
+        updateLeaveStatus(btn.getAttribute('data-id'), btn.getAttribute('data-status'));
+    } else if (action === 'focus') {
+        const el = document.getElementById(btn.getAttribute('data-target'));
+        if (el) el.focus();
+    } else if (action === 'editStudent') {
+        editStudent(btn.getAttribute('data-id'));
+    } else if (action === 'deleteStudent') {
+        deleteStudent(btn.getAttribute('data-id'));
+    } else if (action === 'updateReportStatus') {
+        updateReportStatus(btn.getAttribute('data-id'), btn.getAttribute('data-status'));
+    } else if (action === 'vacateRoom') {
+        vacateRoom(btn.getAttribute('data-id'));
+    } else if (action === 'markVisitorExit') {
+        markVisitorExit(btn.getAttribute('data-id'));
+    } else if (action === 'changePage') {
+        const page = parseInt(btn.getAttribute('data-page'));
+        const container = btn.getAttribute('data-container');
+        if (!isNaN(page)) {
+            window.changePage(page, container);
+        }
+    }
+});

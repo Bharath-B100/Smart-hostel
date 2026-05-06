@@ -10,4 +10,9 @@ const paymentSchema = new mongoose.Schema({
     status: { type: String, default: 'paid' }
 }, { timestamps: true });
 
+// Database indexes for performance
+paymentSchema.index({ studentId: 1 });
+paymentSchema.index({ type: 1 });
+paymentSchema.index({ status: 1 });
+
 module.exports = mongoose.model('Payment', paymentSchema);

@@ -2,12 +2,18 @@ const express = require('express');
 const { validate } = require('../middleware/validation');
 const { authenticate } = require('../middleware/auth');
 const User = require('../models/User');
+const { connectToDatabase } = require('../lib/db');
 
 const router = express.Router();
+
+// Simple in-memory OTP store for demo purposes
+// In production, use Redis or a database collection with TTL
+const otpStore = {};
 
 // Login
 router.post('/login', async (req, res) => {
     try {
+        await connectToDatabase();
         const { email, password, isAdmin: isAdminLogin } = req.body;
 
         console.log('Login attempt:', { email, isAdminLogin });
@@ -161,6 +167,7 @@ router.post('/login', async (req, res) => {
 // Register
 router.post('/register', validate('register'), async (req, res) => {
     try {
+        await connectToDatabase();
         const { email, password, name, room, hostelType, hostelName } = req.body;
 
         // Check if user already exists
@@ -220,6 +227,91 @@ router.get('/verify', authenticate, (req, res) => {
             user: req.user
         }
     });
+});
+
+// Update own profile (name, room) — any authenticated user
+router.put('/profile', authenticate, async (req, res) => {
+    try {
+        await connectToDatabase();
+        const { name, room } = req.body;
+        const user = await User.findByIdAndUpdate(
+            req.user.userId,
+            { name, room },
+            { new: true }
+        ).select('-password');
+        if (!user) return res.status(404).json({ success: false, error: 'User not found' });
+        res.json({ success: true, data: user });
+    } catch (error) {
+        res.status(400).json({ success: false, error: error.message });
+    }
+});
+
+// Forgot Password - Generate OTP
+router.post('/forgot-password', async (req, res) => {
+    try {
+        await connectToDatabase();
+        const { email } = req.body;
+        
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'Email not registered' });
+        }
+        
+        // Generate 4-digit OTP
+        const otp = Math.floor(1000 + Math.random() * 9000).toString();
+        
+        // Store OTP with 10-minute expiry
+        otpStore[email] = {
+            otp,
+            expiresAt: Date.now() + 10 * 60 * 1000
+        };
+        
+        // In a real application, send via nodemailer here.
+        // For demo purposes, we log it to console.
+        console.log(`\n================================`);
+        console.log(`[DEMO] OTP for ${email}: ${otp}`);
+        console.log(`================================\n`);
+        
+        res.json({ success: true, message: 'OTP sent successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Reset Password - Verify OTP & Update
+router.post('/reset-password', async (req, res) => {
+    try {
+        await connectToDatabase();
+        const { email, otp, newPassword } = req.body;
+        
+        const storedData = otpStore[email];
+        
+        if (!storedData) {
+            return res.status(400).json({ success: false, error: 'No OTP requested for this email' });
+        }
+        
+        if (Date.now() > storedData.expiresAt) {
+            delete otpStore[email];
+            return res.status(400).json({ success: false, error: 'OTP has expired' });
+        }
+        
+        if (storedData.otp !== otp) {
+            return res.status(400).json({ success: false, error: 'Invalid OTP' });
+        }
+        
+        // OTP is valid, update password
+        const { hashPassword } = require('../config/auth');
+        const hashedPassword = await hashPassword(newPassword);
+        
+        await User.findOneAndUpdate({ email }, { password: hashedPassword });
+        
+        // Clear OTP after successful reset
+        delete otpStore[email];
+        
+        res.json({ success: true, message: 'Password updated successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
 module.exports = router;

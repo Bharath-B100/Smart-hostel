@@ -31,8 +31,8 @@ const schemas = {
         room: Joi.string().required().messages({
             'any.required': 'Room number is required'
         }),
-        hostelType: Joi.string().valid('boys', 'girls').required().messages({
-            'any.only': 'Hostel type must be either boys or girls',
+        hostelType: Joi.string().valid('boys').required().messages({
+            'any.only': 'Hostel type must be boys',
             'any.required': 'Hostel type is required'
         }),
         hostelName: Joi.string().required().messages({
@@ -45,7 +45,7 @@ const schemas = {
         email: Joi.string().email().required(),
         mealType: Joi.string().valid('breakfast', 'lunch', 'snacks', 'dinner').required(),
         foodRating: Joi.number().min(1).max(5).required(),
-        comments: Joi.string().max(500).required()
+        comments: Joi.string().max(500).allow('').optional()
     }),
 
     leave: Joi.object({
@@ -53,7 +53,7 @@ const schemas = {
         email: Joi.string().email().required(),
         type: Joi.string().valid('sick', 'personal', 'emergency', 'other').required(),
         from: Joi.date().required(),
-        to: Joi.date().required().greater(Joi.ref('from')),
+        to: Joi.date().required().min(Joi.ref('from')),
         reason: Joi.string().max(500).required()
     }),
 
@@ -88,7 +88,7 @@ const schemas = {
         studentName: Joi.string().required(),
         date: Joi.date().required(),
         status: Joi.string().valid('present', 'absent', 'late').required(),
-        type: Joi.string().valid('morning', 'evening').required(),
+        type: Joi.string().valid('morning', 'evening', 'night').required(),
         recordedBy: Joi.string().required()
     }),
 
@@ -104,7 +104,7 @@ const schemas = {
         studentId: Joi.string().required(),
         studentName: Joi.string().required(),
         amount: Joi.number().positive().required(),
-        type: Joi.string().valid('hostel', 'mess', 'other').required(),
+        type: Joi.string().valid('hostel', 'mess', 'other', 'hostel_fee', 'mess_fee', 'security_deposit').required(),
         method: Joi.string().valid('cash', 'online', 'cheque').required(),
         date: Joi.date().required()
     })
@@ -121,7 +121,7 @@ const validate = (schemaName) => {
             });
         }
 
-        const { error, value } = schema.validate(req.body, { abortEarly: false });
+        const { error, value } = schema.validate(req.body, { abortEarly: false, allowUnknown: true, stripUnknown: true });
 
         if (error) {
             const errors = error.details.map(detail => detail.message);

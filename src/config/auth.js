@@ -1,8 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+const JWT_SECRET = process.env.JWT_SECRET || 'smart-hostel-super-secret-jwt-key-2024';
 const SALT_ROUNDS = 10;
 
 // Hash password
@@ -18,10 +17,11 @@ const comparePassword = async (password, hashedPassword) => {
 
 // Generate JWT token
 const generateToken = (userId, email, isAdmin) => {
+    // Hardcoded expiresIn to fix Vercel environment variable issue
     return jwt.sign(
         { userId, email, isAdmin },
         JWT_SECRET,
-        { expiresIn: JWT_EXPIRES_IN }
+        { expiresIn: '7d' }
     );
 };
 
@@ -30,6 +30,7 @@ const verifyToken = (token) => {
     try {
         return jwt.verify(token, JWT_SECRET);
     } catch (error) {
+        console.error('Token verification error:', error.message);
         return null;
     }
 };

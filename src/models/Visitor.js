@@ -11,4 +11,8 @@ const visitorSchema = new mongoose.Schema({
     expectedDuration: { type: Number, required: true }
 }, { timestamps: true });
 
+// Database indexes for performance
+visitorSchema.index({ status: 1 });
+visitorSchema.index({ studentVisiting: 1 });
+
 module.exports = mongoose.model('Visitor', visitorSchema);

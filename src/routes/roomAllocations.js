@@ -1,12 +1,14 @@
 const express = require('express');
 const { authenticate, requireAdmin } = require('../middleware/auth');
 const RoomAllocation = require('../models/RoomAllocation');
+const { connectToDatabase } = require('../lib/db');
 
 const router = express.Router();
 
 // Get all room allocations
 router.get('/', authenticate, async (req, res) => {
     try {
+        await connectToDatabase();
         const allocations = await RoomAllocation.find().sort({ createdAt: -1 });
         res.json({ success: true, data: allocations });
     } catch (error) {
@@ -17,6 +19,7 @@ router.get('/', authenticate, async (req, res) => {
 // Create room allocation
 router.post('/', authenticate, requireAdmin, async (req, res) => {
     try {
+        await connectToDatabase();
         const allocation = new RoomAllocation(req.body);
         await allocation.save();
         res.json({ success: true, data: allocation });
@@ -28,6 +31,7 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
 // Update room allocation
 router.put('/:id', authenticate, requireAdmin, async (req, res) => {
     try {
+        await connectToDatabase();
         const allocation = await RoomAllocation.findByIdAndUpdate(req.params.id, req.body, { new: true });
         res.json({ success: true, data: allocation });
     } catch (error) {
@@ -38,6 +42,7 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
 // Delete room allocation
 router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
     try {
+        await connectToDatabase();
         await RoomAllocation.findByIdAndDelete(req.params.id);
         res.json({ success: true, data: { deletedCount: 1 } });
     } catch (error) {

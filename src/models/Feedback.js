@@ -10,4 +10,8 @@ const feedbackSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now }
 }, { timestamps: true });
 
+// Database indexes for performance
+feedbackSchema.index({ email: 1 });
+feedbackSchema.index({ mealType: 1 });
+
 module.exports = mongoose.model('Feedback', feedbackSchema);

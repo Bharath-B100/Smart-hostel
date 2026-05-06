@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const compression = require('compression');
 require('dotenv').config();
 
 const { hashPassword, comparePassword, generateToken, verifyToken } = require('./config/auth');
@@ -28,8 +29,24 @@ const User = require('./models/User');
 
 const app = express();
 
-// Middleware
-app.use(helmet());
+// Middleware - Compression for performance
+app.use(compression());
+
+// Security headers - configured to allow inline scripts/styles needed by the frontend
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'", "https:", "wss:"]
+        }
+    },
+    crossOriginEmbedderPolicy: false
+}));
+
 app.use(cors({
     origin: process.env.CORS_ORIGIN || '*',
     credentials: true
@@ -45,29 +62,35 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Serve static files from public directory
-app.use(express.static(path.join(__dirname, '../public')));
+// Serve static files from public directory (no-cache in dev to prevent stale JS/CSS)
+app.use(express.static(path.join(__dirname, '../public'), {
+    etag: false,
+    maxAge: 0,
+    setHeaders: (res) => {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+}));
 
-// MongoDB Connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hostel_management';
+// MongoDB Connection - Import from lib
+const { connectToDatabase } = require('./lib/db');
 
-// Connect to MongoDB with error handling
-mongoose.connect(MONGODB_URI).then(() => {
-    logger.info('Connected to MongoDB');
-}).catch((error) => {
-    logger.error('MongoDB connection error:', error);
-});
-
-const db = mongoose.connection;
-db.on('error', (error) => {
-    logger.error('MongoDB connection error:', error);
-});
-db.once('open', () => {
-    logger.info('Connected to MongoDB');
+// Add middleware to ensure connection for all routes
+app.use(async (req, res, next) => {
+    try {
+        await connectToDatabase();
+        next();
+    } catch (error) {
+        logger.error('Database connection error:', error);
+        // Don't block the request, routes will handle errors
+        next();
+    }
 });
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/users', require('./routes/users'));
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/leaves', leaveRoutes);
 app.use('/api/students', studentRoutes);
@@ -97,7 +120,8 @@ app.use((req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-// Initialize sample data
+// Initialize sample data (with guard to prevent duplicate race conditions)
+let sampleDataInitialized = false;
 async function initSampleData() {
     try {
         // Always ensure admin user exists
@@ -113,7 +137,7 @@ async function initSampleData() {
                 isAdmin: true
             });
             await adminUser.save();
-            logger.info('Admin user created');
+            console.log('Admin user created');
         }
 
         // Check if sample student data already exists
@@ -144,21 +168,41 @@ async function initSampleData() {
                 await user.save();
             }
 
-            logger.info('Sample data initialized successfully');
+            console.log('Sample data initialized successfully');
         }
     } catch (error) {
-        logger.error('Error initializing sample data:', error);
+        console.error('Error initializing sample data:', error);
     }
 }
 
-// Initialize data when server starts
-initSampleData();
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    logger.info(`Server is running on port ${PORT}`);
-    logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+// Initialize data when server starts - only if database is connected
+if (require.main === module) {
+    // Only initialize sample data when running directly, not in Vercel
+    const initializeServer = async () => {
+        const PORT = process.env.PORT || 3000;
+        
+        try {
+            // Test database connection first
+            await connectToDatabase();
+            console.log('Database connected successfully');
+            
+            // Now initialize sample data
+            await initSampleData();
+            console.log('Sample data initialized');
+        } catch (error) {
+            console.error('Failed to initialize database:', error);
+            console.log('Server will start anyway, but some features may not work');
+        }
+        
+        // Start server regardless of database status
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+            console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+        });
+    };
+    
+    initializeServer();
+}
 
 // Export for Vercel
 module.exports = app;
