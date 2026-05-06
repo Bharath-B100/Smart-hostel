@@ -27,10 +27,3 @@ logs/
 
 # Vercel
 .vercel
-
-# Project specific
-JWT/
-api/
-src/generated/prisma
-.next/
-out/

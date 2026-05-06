@@ -1,0 +1,50 @@
+services:
+  # Node.js Web Service
+  - type: web
+    name: smart-hostel-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    
+  # Environment Variables (add these in Render Dashboard)
+  envVars:
+    - key: MONGODB_URI
+      value: "mongodb+srv://ngtbharath_db_user:RcGRphh85KJovCCA@cluster0.vzvrfxn.mongodb.net/smart_hostel?retryWrites=true&w=majority&appName=Cluster0"
+      sync: false
+    - key: NODE_ENV
+      value: "production"
+      sync: false
+    - key: JWT_SECRET
+      value: "smart-hostel-super-secret-jwt-key-2024"
+      sync: false
+    - key: JWT_EXPIRES_IN
+      value: "7d"
+      sync: false
+    - key: PORT
+      value: "3000"
+      sync: false
+
+  # Auto-deploy configuration
+  autoDeploy: true
+  
+  # Instance configuration
+  instanceType: free
+  
+  # Health check
+  healthCheck:
+    enabled: true
+    path: /api/health
+    timeoutSeconds: 30
+    
+  # Build and deployment
+  build:
+    nodeVersion: "18.x"
+    
+  # Port configuration
+  ports:
+    - port: 3000
+      
+  # Repository (if using Git)
+  repo: https://github.com/your-username/smart-hostel-main.git
