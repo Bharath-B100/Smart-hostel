@@ -533,8 +533,8 @@ function setupEventListeners() {
     if (mobileMenuToggle) {
         mobileMenuToggle.addEventListener('click', () => {
             const navLinks = document.querySelector('.nav-links');
-            navLinks.classList.toggle('mobile-active');
-            mobileMenuToggle.setAttribute('aria-expanded', navLinks.classList.contains('mobile-active'));
+            navLinks.classList.toggle('active');
+            mobileMenuToggle.setAttribute('aria-expanded', navLinks.classList.contains('active'));
         });
     }
 
