@@ -62,8 +62,8 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Serve static files from public directory (no-cache in dev to prevent stale JS/CSS)
-app.use(express.static(path.join(__dirname, '../public'), {
+// Serve static files from React build directory
+app.use(express.static(path.join(__dirname, '../client/dist'), {
     etag: false,
     maxAge: 0,
     setHeaders: (res) => {
@@ -117,7 +117,7 @@ app.use(errorHandler);
 
 // Serve the main application - THIS MUST BE THE LAST ROUTE
 app.use((req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 // Initialize sample data (with guard to prevent duplicate race conditions)
@@ -137,7 +137,7 @@ async function initSampleData() {
                 isAdmin: true
             });
             await adminUser.save();
-            console.log('Admin user created');
+            logger.info('Admin user created');
         }
 
         // Check if sample student data already exists
@@ -168,10 +168,10 @@ async function initSampleData() {
                 await user.save();
             }
 
-            console.log('Sample data initialized successfully');
+            logger.info('Sample data initialized successfully');
         }
     } catch (error) {
-        console.error('Error initializing sample data:', error);
+        logger.error('Error initializing sample data:', error);
     }
 }
 
@@ -184,20 +184,20 @@ if (require.main === module) {
         try {
             // Test database connection first
             await connectToDatabase();
-            console.log('Database connected successfully');
+            logger.info('Database connected successfully');
             
             // Now initialize sample data
             await initSampleData();
-            console.log('Sample data initialized');
+            logger.info('Sample data initialized');
         } catch (error) {
-            console.error('Failed to initialize database:', error);
-            console.log('Server will start anyway, but some features may not work');
+            logger.error('Failed to initialize database:', error);
+            logger.info('Server will start anyway, but some features may not work');
         }
         
         // Start server regardless of database status
         app.listen(PORT, () => {
-            console.log(`Server is running on port ${PORT}`);
-            console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+            logger.info(`Server is running on port ${PORT}`);
+            logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
         });
     };
     

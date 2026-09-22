@@ -21,6 +21,8 @@ router.get('/', authenticate, async (req, res) => {
 router.post('/', authenticate, validate('feedback'), async (req, res) => {
     try {
         await connectToDatabase();
+        req.body.user = req.body.user || req.user.email;
+        req.body.email = req.body.email || req.user.email;
         const feedback = new Feedback(req.body);
         await feedback.save();
         res.json({ success: true, data: feedback });

@@ -41,17 +41,17 @@ const schemas = {
     }),
 
     feedback: Joi.object({
-        user: Joi.string().required(),
-        email: Joi.string().email().required(),
-        mealType: Joi.string().valid('breakfast', 'lunch', 'snacks', 'dinner').required(),
+        user: Joi.string().optional(),
+        email: Joi.string().email().optional(),
+        mealType: Joi.string().required(),
         foodRating: Joi.number().min(1).max(5).required(),
         comments: Joi.string().max(500).allow('').optional()
     }),
 
     leave: Joi.object({
-        user: Joi.string().required(),
-        email: Joi.string().email().required(),
-        type: Joi.string().valid('sick', 'personal', 'emergency', 'other').required(),
+        user: Joi.string().optional(),
+        email: Joi.string().email().optional(),
+        type: Joi.string().required(),
         from: Joi.date().required(),
         to: Joi.date().required().min(Joi.ref('from')),
         reason: Joi.string().max(500).required()
@@ -67,9 +67,9 @@ const schemas = {
     }),
 
     report: Joi.object({
-        user: Joi.string().required(),
-        email: Joi.string().email().required(),
-        category: Joi.string().valid('Electrical', 'Plumbing', 'Furniture', 'Cleaning', 'Internet', 'Security', 'Other').required(),
+        user: Joi.string().optional(),
+        email: Joi.string().email().optional(),
+        category: Joi.string().required(),
         location: Joi.string().required(),
         description: Joi.string().max(1000).required(),
         urgency: Joi.string().valid('low', 'medium', 'high', 'critical').required()

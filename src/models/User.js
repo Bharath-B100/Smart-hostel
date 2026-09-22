@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema({
     hostelName: { type: String, required: true },
     avatar: { type: String, default: '' },
     theme: { type: String, default: 'light', enum: ['light', 'dark'] },
-    isAdmin: { type: Boolean, default: false }
+    isAdmin: { type: Boolean, default: false },
+    studentProfile: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

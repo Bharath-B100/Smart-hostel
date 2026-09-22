@@ -17,10 +17,23 @@ router.get('/', authenticate, async (req, res) => {
     }
 });
 
+// Get my reports
+router.get('/my-reports', authenticate, async (req, res) => {
+    try {
+        await connectToDatabase();
+        const reports = await Report.find({ email: req.user.email }).sort({ createdAt: -1 });
+        res.json({ success: true, data: reports });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // Create report
 router.post('/', authenticate, validate('report'), async (req, res) => {
     try {
         await connectToDatabase();
+        req.body.user = req.body.user || req.user.email;
+        req.body.email = req.body.email || req.user.email;
         const report = new Report(req.body);
         await report.save();
         res.json({ success: true, data: report });

@@ -17,10 +17,23 @@ router.get('/', authenticate, async (req, res) => {
     }
 });
 
+// Get my leaves
+router.get('/my-leaves', authenticate, async (req, res) => {
+    try {
+        await connectToDatabase();
+        const leaves = await Leave.find({ email: req.user.email }).sort({ createdAt: -1 });
+        res.json({ success: true, data: leaves });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // Create leave
 router.post('/', authenticate, validate('leave'), async (req, res) => {
     try {
         await connectToDatabase();
+        req.body.user = req.body.user || req.user.email;
+        req.body.email = req.body.email || req.user.email;
         const leave = new Leave(req.body);
         await leave.save();
         res.json({ success: true, data: leave });
